@@ -2,6 +2,8 @@ import { Controller, Get, Post, Request, UseGuards } from '@nestjs/common';
 import { LocalAuthGuard } from './passport/local-auth.guard';
 import { AuthService } from './auth.service';
 import { JwtAuthGuard } from './passport/jwt-auth.guard';
+import { RolesGuard } from 'src/guards/roles.guard';
+import { Roles } from 'src/decorators/roles.decorator';
 
 @Controller('auth')
 export class AuthController {
@@ -21,5 +23,13 @@ export class AuthController {
   @Get('check-authen')
   checkAuthen(){
     return "Xác thực thành công";
+  }
+
+  //check author
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('admin')
+  @Get('check-author')
+  checkAuthor(){
+    return "Xin chào Admin!!!"
   }
 }
