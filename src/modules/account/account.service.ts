@@ -57,8 +57,24 @@ export class AccountService {
     return `This action returns all account`;
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} account`;
+  //find account by id service
+  async findOneById(id: string) {
+    const account = await this.AccountModel.findById(id);
+
+    return {
+      data: account
+    };
+  }
+
+  //find account by name service
+  async findOneByName(username: string){
+    const account = await this.AccountModel.findOne({
+      username: username
+    })
+
+    return {
+      data: account
+    }
   }
 
   update(id: number, updateAccountDto: UpdateAccountDto) {
