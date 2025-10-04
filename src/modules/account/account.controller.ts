@@ -23,6 +23,7 @@ export class AccountController {
   findOneByName(@Param('username') username: string) {
     return this.accountService.findOneByName(username)
   }
+  
   //Find account by Id
   @Get(':id')
   findOneById(@Param('id') id: string) {
