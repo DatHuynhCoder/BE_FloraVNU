@@ -25,9 +25,10 @@ export class FlowerController {
     return this.flowerService.findAll();
   }
 
+  //Get detail flower
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.flowerService.findOne(+id);
+    return this.flowerService.findOne(id);
   }
 
   //update a Flower
@@ -36,7 +37,7 @@ export class FlowerController {
   @Roles('admin')
   @UseInterceptors(FileInterceptor('image'))
   update(
-    @Param('id') id: string, 
+    @Param('id') id: string,
     @Body() updateFlowerDto: UpdateFlowerDto,
     @UploadedFile() image?: Express.Multer.File
   ) {
@@ -45,6 +46,8 @@ export class FlowerController {
 
   //Delete a Flower
   @Delete(':id')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('admin')
   remove(@Param('id') id: string) {
     return this.flowerService.remove(id);
   }

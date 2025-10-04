@@ -51,8 +51,15 @@ export class FlowerService {
     return `This action returns all flower`;
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} flower`;
+  async findOne(id: string) {
+    //get flower
+    const flower = await this.FlowerModel.findById(id);
+    if(!flower){
+      throw new NotFoundException('Không tìm thấy hoa');
+    }
+    return {
+      data: flower
+    };
   }
 
 
