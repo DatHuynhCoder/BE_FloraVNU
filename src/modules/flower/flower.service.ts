@@ -84,7 +84,7 @@ export class FlowerService {
       basedTypes: normalizedTypes,
     };
 
-    if(uploadImg) {
+    if (uploadImg) {
       updateData.image = {
         url: uploadImg.secure_url,
         public_id: uploadImg.public_id
@@ -92,14 +92,25 @@ export class FlowerService {
     }
 
     //Update flower in DB
-    await this.FlowerModel.findByIdAndUpdate(id, updateData, {new: true});
+    await this.FlowerModel.findByIdAndUpdate(id, updateData, { new: true });
 
     return {
       message: "Cập nhật hoa thành công !"
     };
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} flower`;
+  //Delete a flower service
+  async remove(id: string) {
+    const flower = await this.FlowerModel.findById(id);
+    //delete flower image
+    if (flower) {
+      await this.cloudinary.deleteImage(flower.image.public_id)
+    }
+
+    await this.FlowerModel.findByIdAndDelete(id);
+
+    return {
+      message: "Xóa hoa thành công !"
+    };
   }
 }

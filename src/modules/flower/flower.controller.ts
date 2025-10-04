@@ -46,6 +46,6 @@ export class FlowerController {
   //Delete a Flower
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.flowerService.remove(+id);
+    return this.flowerService.remove(id);
   }
 }
