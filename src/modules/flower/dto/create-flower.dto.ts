@@ -1,3 +1,4 @@
+import { Transform } from "class-transformer";
 import { IsArray, IsNotEmpty, IsNumber, IsOptional, IsString, Max, Min } from "class-validator";
 
 export class CreateFlowerDto {
@@ -10,20 +11,24 @@ export class CreateFlowerDto {
   description: string
 
   @IsOptional()
+  @Transform(({ value }) => Number(value))
   @IsNumber()
   price: string;
 
   @IsOptional()
-  @IsNumber()
+  @Transform(({ value }) => Number(value))
+  @IsNumber({ maxDecimalPlaces: 2 })
   @Min(0)
   @Max(5)
   rating: number;
 
   @IsOptional()
+  @Transform(({ value }) => Number(value))
   @IsNumber()
   stockQuantity: number;
 
   @IsOptional()
+  @Transform(({ value }) => Number(value))
   @IsNumber()
   discountPercent: Number;
 
@@ -33,7 +38,16 @@ export class CreateFlowerDto {
 
   @IsNotEmpty()
   @IsArray()
-  @IsString({each: true})
+  @IsString({ each: true })
+  @Transform(({ value }) => {
+    if (!value) return [];
+    try {
+      // handle both "['a','b']" and '["a","b"]'
+      return JSON.parse(value.replace(/'/g, '"'));
+    } catch {
+      return [];
+    }
+  })
   types: string[];
 
   @IsNotEmpty()
@@ -41,6 +55,7 @@ export class CreateFlowerDto {
   form: string;
 
   @IsOptional()
+  @Transform(({ value }) => Number(value))
   @IsNumber()
   quantitySold: number;
 }
