@@ -5,7 +5,7 @@ import * as streamifier from 'streamifier';
 
 @Injectable()
 export class CloudinaryService {
-    constructor(@Inject('CLOUDINARY') private readonly cloudinary: typeof Cloudinary) {}
+  constructor(@Inject('CLOUDINARY') private readonly cloudinary: typeof Cloudinary) { }
 
   async uploadImage(file: Express.Multer.File, folder: string): Promise<CloudinaryResponse> {
     return new Promise<CloudinaryResponse>((resolve, reject) => {
@@ -27,5 +27,9 @@ export class CloudinaryService {
 
       streamifier.createReadStream(file.buffer).pipe(uploadStream);
     });
+  }
+
+  async deleteImage(publicId: string): Promise<any> {
+    return this.cloudinary.uploader.destroy(publicId);
   }
 }

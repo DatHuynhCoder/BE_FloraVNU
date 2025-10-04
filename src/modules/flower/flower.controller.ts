@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, UseInterceptors, UploadedFile } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, UseInterceptors, UploadedFile, ParseIntPipe } from '@nestjs/common';
 import { FlowerService } from './flower.service';
 import { CreateFlowerDto } from './dto/create-flower.dto';
 import { UpdateFlowerDto } from './dto/update-flower.dto';
@@ -9,7 +9,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 
 @Controller('flower')
 export class FlowerController {
-  constructor(private readonly flowerService: FlowerService) {}
+  constructor(private readonly flowerService: FlowerService) { }
 
   //Create a new flower
   @Post()
@@ -30,11 +30,20 @@ export class FlowerController {
     return this.flowerService.findOne(+id);
   }
 
+  //update a Flower
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateFlowerDto: UpdateFlowerDto) {
-    return this.flowerService.update(+id, updateFlowerDto);
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('admin')
+  @UseInterceptors(FileInterceptor('image'))
+  update(
+    @Param('id') id: string, 
+    @Body() updateFlowerDto: UpdateFlowerDto,
+    @UploadedFile() image?: Express.Multer.File
+  ) {
+    return this.flowerService.update(id, updateFlowerDto, image);
   }
 
+  //Delete a Flower
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.flowerService.remove(+id);

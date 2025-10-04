@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateFlowerDto } from './dto/create-flower.dto';
 import { UpdateFlowerDto } from './dto/update-flower.dto';
 import { CloudinaryService } from 'src/common/services/cloudinary/cloudinary.service';
@@ -11,13 +11,14 @@ import { normalizeStr } from 'src/utils/normalizeStr';
 export class FlowerService {
   constructor(
     @InjectModel(Flower.name) private FlowerModel: Model<Flower>,
-    private readonly cloudinary: CloudinaryService 
-  ){}
+    private readonly cloudinary: CloudinaryService
+  ) { }
 
+  //Create new flower service
   async create(createFlowerDto: CreateFlowerDto, image: Express.Multer.File) {
     //Check if the flower aldready exists
-    const compareFlower = await this.FlowerModel.findOne({name: createFlowerDto.name});
-    if(compareFlower){
+    const compareFlower = await this.FlowerModel.findOne({ name: createFlowerDto.name });
+    if (compareFlower) {
       throw new BadRequestException(`Hoa với tên "${createFlowerDto.name}" đã tồn tại`);
     }
 
@@ -28,6 +29,7 @@ export class FlowerService {
     const normalizedName = normalizeStr(createFlowerDto.name);
     const normalizedTypes = createFlowerDto.types.map(type => normalizeStr(type));
 
+    //create new flower
     const newFlower = new this.FlowerModel({
       ...createFlowerDto,
       basedName: normalizedName,
@@ -53,8 +55,48 @@ export class FlowerService {
     return `This action returns a #${id} flower`;
   }
 
-  update(id: number, updateFlowerDto: UpdateFlowerDto) {
-    return `This action updates a #${id} flower`;
+
+  //Update a flower service
+  async update(id: string, updateFlowerDto: UpdateFlowerDto, image?: Express.Multer.File) {
+    //find the flower to update
+    const checkFlower = await this.FlowerModel.findById(id);
+    if (!checkFlower) {
+      throw new NotFoundException(`Không tìm thấy hoa để cập nhật`);
+    }
+
+    let uploadImg;
+    if (image) {
+      //Xóa ảnh cũ
+      await this.cloudinary.deleteImage(checkFlower.image.public_id);
+
+      //update ảnh mới
+      uploadImg = await this.cloudinary.uploadImage(image, "FloraVNU/Flowers")
+    }
+
+    //update normalize
+    const normalizedName = normalizeStr(updateFlowerDto.name);
+    const normalizedTypes = updateFlowerDto.types.map(type => normalizeStr(type));
+
+    //update data
+    const updateData: any = {
+      ...updateFlowerDto,
+      basedName: normalizedName,
+      basedTypes: normalizedTypes,
+    };
+
+    if(uploadImg) {
+      updateData.image = {
+        url: uploadImg.secure_url,
+        public_id: uploadImg.public_id
+      }
+    }
+
+    //Update flower in DB
+    await this.FlowerModel.findByIdAndUpdate(id, updateData, {new: true});
+
+    return {
+      message: "Cập nhật hoa thành công !"
+    };
   }
 
   remove(id: number) {
