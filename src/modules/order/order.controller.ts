@@ -17,17 +17,43 @@ export class OrderController {
 
   // create a new order
   @Post()
+  @UseGuards(JwtAuthGuard)
   createOrder(@Body() createOrderDto: CreateOrderDto) {
     return this.orderService.createOrder(createOrderDto);
   }
 
+  // get all orders
   @Get()
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('admin')
   findAll() {
     return this.orderService.findAll();
   }
 
-  // get all orders
-  // get order by id
+  // get orders by account id
+  @UseGuards(JwtAuthGuard)
+  @Get('account/:accountId')
+  findByAccountId(@Param('accountId') accountId: string) {
+    return this.orderService.findByAccountId(accountId);
+  }
+
   // update order status
+  @Patch(':id/status')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('admin')
+  updateStatus(@Param('id') id: string, @Body('status') status: string) {
+    return this.orderService.updateStatus(id, status);
+  }
+  // update an order
+  @Patch(':id')
+  update(@Param('id') id: string) {
+    return this.orderService.update(id);
+  }
   // delete an order
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('admin')
+  @Delete(':id')
+  remove(@Param('id') id: string) {
+    return this.orderService.remove(id);
+  }
 }
