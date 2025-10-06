@@ -122,6 +122,7 @@ export class AccountService {
 
     if ('password' in updatedData) delete updatedData.password;
     if ('role' in updatedData) delete updatedData.role;
+    
     if (avatar) {
       if (account.avatar && account.avatar.public_id) {
         // Delete the old avatar from Cloudinary
