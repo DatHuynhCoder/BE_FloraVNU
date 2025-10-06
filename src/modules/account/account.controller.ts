@@ -1,7 +1,11 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, ParseIntPipe } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, ParseIntPipe, UseGuards, UseInterceptors, UploadedFile, Req } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { AccountService } from './account.service';
 import { CreateAccountDto } from './dto/create-account.dto';
 import { UpdateAccountDto } from './dto/update-account.dto';
+import { ChangePasswordDto } from './dto/change-password.dto';
+import type { Express } from 'express';
+import { JwtAuthGuard } from '../auth/passport/jwt-auth.guard';
 
 @Controller('account')
 export class AccountController {
@@ -30,14 +34,35 @@ export class AccountController {
     return this.accountService.findOneById(id);
   }
 
-
+  //Update account profile
+  @UseGuards(JwtAuthGuard)
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateAccountDto: UpdateAccountDto) {
-    return this.accountService.update(+id, updateAccountDto);
+  @UseInterceptors(FileInterceptor('avatar'))
+  updateProfile(
+    @Param('id') id: string,
+    @Body() updateAccountDto: UpdateAccountDto,
+    @UploadedFile() avatar?: Express.Multer.File,
+    @Req() req?:any,
+  ){
+
+    if ((updateAccountDto as any).role) delete (updateAccountDto as any).role;
+    if ((updateAccountDto as any).password) delete (updateAccountDto as any).password;
+    return this.accountService.updateProfile(id, updateAccountDto, avatar);
   }
 
+  @UseGuards(JwtAuthGuard)
+  @Patch(':id/password')
+  changePassword(
+    @Param('id') id: string,
+    @Body() changePasswordDto: ChangePasswordDto,
+    @Req() req?: any,
+  ){
+    return this.accountService.changePassword(id, changePasswordDto);
+  }
+
+  @UseGuards(JwtAuthGuard)
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.accountService.remove(+id);
+    return this.accountService.remove(id);
   }
 }
