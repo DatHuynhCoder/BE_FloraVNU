@@ -25,15 +25,20 @@ export class FlowerService {
     //Upload flower image to Cloudinary
     const uploadImg = await this.cloudinary.uploadImage(image, "FloraVNU/Flowers")
 
-    //normalize name and types
+    //normalize name, occasion, form and types
     const normalizedName = normalizeStr(createFlowerDto.name);
     const normalizedTypes = createFlowerDto.types.map(type => normalizeStr(type));
+    const basedTypes = normalizedTypes.join('-')
+    const normalizedOccasion = normalizeStr(createFlowerDto.occasion)
+    const normalizedForm = normalizeStr(createFlowerDto.form)
 
     //create new flower
     const newFlower = new this.FlowerModel({
       ...createFlowerDto,
       basedName: normalizedName,
-      basedTypes: normalizedTypes,
+      basedTypes: basedTypes,
+      baseOccasion: normalizedOccasion,
+      basedForm: normalizedForm,
       image: {
         url: uploadImg.secure_url,
         public_id: uploadImg.public_id
@@ -83,12 +88,17 @@ export class FlowerService {
     //update normalize
     const normalizedName = normalizeStr(updateFlowerDto.name);
     const normalizedTypes = updateFlowerDto.types.map(type => normalizeStr(type));
+    const basedTypes = normalizedTypes.join('-')
+    const normalizedOccasion = normalizeStr(updateFlowerDto.occasion)
+    const normalizedForm = normalizeStr(updateFlowerDto.form)
 
     //update data
     const updateData: any = {
       ...updateFlowerDto,
       basedName: normalizedName,
-      basedTypes: normalizedTypes,
+      basedTypes: basedTypes,
+      baseOccasion: normalizedOccasion,
+      basedForm: normalizedForm,
     };
 
     if (uploadImg) {
