@@ -144,6 +144,9 @@ export class AccountService {
     };
   }
   async changePassword(id: string, changePasswordDto: ChangePasswordDto) {
+    if(changePasswordDto.newPassword == changePasswordDto.currentPassword){
+      throw new BadRequestException('New password must be different from current password');
+    }
     if(changePasswordDto.newPassword !== changePasswordDto.confirmNewPassword) {
       throw new BadRequestException('New password and confirm new password do not match');
     }
@@ -160,13 +163,13 @@ export class AccountService {
     return { message: 'Password changed successfully' };
   }
 
-  remove(id: string) {
-    const account = this.AccountModel.findByIdAndDelete(id);
+  async remove(id: string) {
+    const account = await this.AccountModel.findByIdAndDelete(id).lean<Account | null>();
     if (!account) {
       throw new NotFoundException(`Account with id ${id} not found`);
     }
-    if((account as any).avatar?.public_id) {
-      this.cloudinaryService.deleteImage((account as any).avatar.public_id);
+    if(account.avatar?.public_id) {
+      this.cloudinaryService.deleteImage(account.avatar.public_id);
     }
     return { message: `Account with id ${id} has been deleted` };
   }
