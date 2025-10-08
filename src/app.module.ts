@@ -3,6 +3,9 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
+import { AccountModule } from './modules/account/account.module';
+import { AuthModule } from './modules/auth/auth.module';
+import { FlowerModule } from './modules/flower/flower.module';
 
 @Module({
   imports: [
@@ -14,7 +17,10 @@ import { MongooseModule } from '@nestjs/mongoose';
       useFactory: async (configService: ConfigService) => ({
         uri: configService.get<string>('MONGO_URI'),
       }),
-    })
+    }),
+    AccountModule,
+    AuthModule,
+    FlowerModule
   ],
   controllers: [AppController],
   providers: [AppService],
