@@ -4,7 +4,7 @@ import { UpdateAccountDto } from './dto/update-account.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Account } from './schemas/account.schema';
 import { Model } from 'mongoose';
-import { hashPass } from 'src/utils/hashPass';
+import { hashPass } from "../../utils/hashPass";
 
 @Injectable()
 export class AccountService {
@@ -67,7 +67,7 @@ export class AccountService {
   }
 
   //find account by name service
-  async findOneByName(username: string){
+  async findOneByName(username: string) {
     const account = await this.AccountModel.findOne({
       username: username
     })

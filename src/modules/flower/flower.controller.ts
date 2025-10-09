@@ -3,8 +3,8 @@ import { FlowerService } from './flower.service';
 import { CreateFlowerDto } from './dto/create-flower.dto';
 import { UpdateFlowerDto } from './dto/update-flower.dto';
 import { JwtAuthGuard } from '../auth/passport/jwt-auth.guard';
-import { Roles } from 'src/decorators/roles.decorator';
-import { RolesGuard } from 'src/guards/roles.guard';
+import { Roles } from '../../decorators/roles.decorator';
+import { RolesGuard } from '../../guards/roles.guard';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { SearchFlowerDto } from './dto/search-flower.dto';
 

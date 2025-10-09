@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { AccountService } from '../account/account.service';
-import { comparePass } from 'src/utils/hashPass';
+import { comparePass } from '../../utils/hashPass';
 import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
