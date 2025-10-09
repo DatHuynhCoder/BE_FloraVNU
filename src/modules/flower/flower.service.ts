@@ -1,11 +1,11 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateFlowerDto } from './dto/create-flower.dto';
 import { UpdateFlowerDto } from './dto/update-flower.dto';
-import { CloudinaryService } from 'src/common/services/cloudinary/cloudinary.service';
+import { CloudinaryService } from '../../common/services/cloudinary/cloudinary.service';
 import { InjectModel } from '@nestjs/mongoose';
 import { Flower } from './schemas/flower.schema';
 import { Model } from 'mongoose';
-import { normalizeStr } from 'src/utils/normalizeStr';
+import { normalizeStr } from '../../utils/normalizeStr';
 import { SearchFlowerDto } from './dto/search-flower.dto';
 
 @Injectable()

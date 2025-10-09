@@ -1,6 +1,6 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 import { HydratedDocument } from "mongoose";
-import { Image, ImageSchema } from "src/common/schemas/image.schema";
+import { Image, ImageSchema } from "../../../common/schemas/image.schema";
 
 @Schema({timestamps: true})
 export class Account {
