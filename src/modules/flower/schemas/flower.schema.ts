@@ -1,6 +1,6 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 import { HydratedDocument } from "mongoose";
-import { Image, ImageSchema } from "src/common/schemas/image.schema";
+import { Image, ImageSchema } from "../../../common/schemas/image.schema";
 
 @Schema({timestamps: true})
 export class Flower {
@@ -31,15 +31,21 @@ export class Flower {
   @Prop({required: true})
   occasion: string;
 
+  @Prop({required: true})
+  baseOccasion: string;
+
   @Prop({type: [String], required: true})
   types: string[];
 
-  @Prop({type: [String], required: true})
-  basedTypes: string[];
+  @Prop({required: true})
+  basedTypes: string;
 
   @Prop({required: true})
   form: string;
 
+  @Prop({required: true})
+  basedForm: string;
+  
   @Prop({default: 0})
   quantitySold: 0;
 }
