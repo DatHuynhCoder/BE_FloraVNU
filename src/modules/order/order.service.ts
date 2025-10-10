@@ -1,8 +1,9 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Order } from './schemas/order.schema';
 import { Model } from 'mongoose';
+import { UpdateOrderDto } from './dto/update-order.dto';
 
 @Injectable()
 export class OrderService {
@@ -11,13 +12,15 @@ export class OrderService {
   ) { }
 
   // create new order
-  async createOrder(createOrderDto: CreateOrderDto) {
+  async createOrder(uid: string, createOrderDto: CreateOrderDto) {
     const createdOrder = new this.orderModel({
       ...createOrderDto,
+      accountId: uid,
       orderStatus: 'Pending'
     });
     await createdOrder.save();
     return {
+      status: "success",
       data: createdOrder
     }
   }
@@ -29,6 +32,7 @@ export class OrderService {
   async findOne(id: string) {
     const order = await this.orderModel.findById(id);
     return {
+      status: "success",
       data: order
     }
   }
@@ -36,6 +40,7 @@ export class OrderService {
   async findByAccountId(accountId: string) {
     const orders = await this.orderModel.find({ accountId: accountId });
     return {
+      status: "success",
       data: orders
     }
   }
@@ -43,18 +48,28 @@ export class OrderService {
   async updateStatus(id: string, status: string) {
     const order = await this.orderModel.findByIdAndUpdate(id, { orderStatus: status }, { new: true });
     return {
+      status: "success",
       data: order
     }
   }
 
-  async update(id: string) {
-    return `This action updates a #${id} order`;
+  async update(id: string, updateOrderDto: UpdateOrderDto) {
+    const orderFinding = await this.orderModel.findById(id) // return null if not found 
+    if (!orderFinding) throw new NotFoundException()
+    const order = await this.orderModel.findByIdAndUpdate(id, {
+      ...updateOrderDto
+    })
+    return {
+      status: "success",
+      message: `This action updates a #${id} order`
+    };
   }
 
   // delete an order
   async remove(id: string) {
     await this.orderModel.findByIdAndDelete(id);
     return {
+      status: "success",
       message: 'Order deleted successfully'
     }
   }

@@ -9,8 +9,8 @@ class OrderItem {
 }
 
 export class CreateOrderDto {
-  @IsNotEmpty()
-  accountId: mongoose.Types.ObjectId;
+  // @IsNotEmpty()
+  // accountId: mongoose.Types.ObjectId;
 
   @IsNotEmpty()
   @IsArray()

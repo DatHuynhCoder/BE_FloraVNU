@@ -7,9 +7,10 @@
 import { OrderService } from './order.service';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { JwtAuthGuard } from '../auth/passport/jwt-auth.guard';
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, UseInterceptors, UploadedFile, ParseIntPipe } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Request, UseGuards, UseInterceptors, UploadedFile, ParseIntPipe } from '@nestjs/common';
 import { Roles } from 'src/decorators/roles.decorator';
 import { RolesGuard } from 'src/guards/roles.guard';
+import { UpdateOrderDto } from './dto/update-order.dto';
 
 @Controller('order')
 export class OrderController {
@@ -17,9 +18,11 @@ export class OrderController {
 
   // create a new order
   @Post()
-  @UseGuards(JwtAuthGuard)
-  createOrder(@Body() createOrderDto: CreateOrderDto) {
-    return this.orderService.createOrder(createOrderDto);
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('admin', 'customer')
+  createOrder(@Request() req, @Body() createOrderDto: CreateOrderDto) {
+    const uid = req.user._id
+    return this.orderService.createOrder(uid, createOrderDto);
   }
 
   // get all orders
@@ -31,10 +34,12 @@ export class OrderController {
   }
 
   // get orders by account id
-  @UseGuards(JwtAuthGuard)
-  @Get('account/:accountId')
-  findByAccountId(@Param('accountId') accountId: string) {
-    return this.orderService.findByAccountId(accountId);
+
+  @Get('account')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('admin, user')
+  findByAccountId(@Request() req) {
+    return this.orderService.findByAccountId(req.user._id);
   }
 
   // update order status
@@ -46,8 +51,9 @@ export class OrderController {
   }
   // update an order
   @Patch(':id')
-  update(@Param('id') id: string) {
-    return this.orderService.update(id);
+  @UseGuards(JwtAuthGuard)
+  update(@Param('id') id: string, @Body() updateOrderDto: UpdateOrderDto) {
+    return this.orderService.update(id, updateOrderDto);
   }
   // delete an order
   @UseGuards(JwtAuthGuard, RolesGuard)
