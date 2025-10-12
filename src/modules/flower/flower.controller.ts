@@ -27,6 +27,24 @@ export class FlowerController {
     return this.flowerService.search(query);
   }
 
+  //Get all occasions
+  @Get('/occasions')
+  getAllOccasions(){
+    return this.flowerService.getAllOccasions();
+  }
+
+  //Get all types
+  @Get('/types')
+  getAllTypes(){
+    return this.flowerService.getAllTypes();
+  }
+
+  //Get all forms
+  @Get('/forms')
+  getAllForms(){
+    return this.flowerService.getAllForms();
+  }
+
   @Get()
   findAll() {
     return this.flowerService.findAll();
