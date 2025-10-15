@@ -135,6 +135,33 @@ export class FlowerService {
 
   }
 
+  //Get all flower occasion
+  async getAllOccasions(){
+    const occasions = await this.FlowerModel.distinct("occasion")
+
+    return {
+      data: occasions
+    }
+  }
+
+  //Get all flower types
+  async getAllTypes(){
+    const types = await this.FlowerModel.distinct("types")
+
+    return {
+      data: types
+    }
+  }
+
+  //Get all flower forms
+  async getAllForms(){
+    const forms = await this.FlowerModel.distinct("form")
+
+    return {
+      data: forms
+    }
+  }
+
   findAll() {
     return `This action returns all flower`;
   }
@@ -161,10 +188,10 @@ export class FlowerService {
 
     let uploadImg;
     if (image) {
-      //Xóa ảnh cũ
+      //Delete old image on Cloudinary
       await this.cloudinary.deleteImage(checkFlower.image.public_id);
 
-      //update ảnh mới
+      //update new image to Cloudinary
       uploadImg = await this.cloudinary.uploadImage(image, "FloraVNU/Flowers")
     }
 
