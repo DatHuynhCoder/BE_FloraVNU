@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { CreateCommentDto } from './dto/create-comment.dto';
 import { UpdateCommentDto } from './dto/update-comment.dto';
 import { InjectModel } from '@nestjs/mongoose';
@@ -66,7 +66,34 @@ export class CommentService {
     return `This action updates a #${id} comment`;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} comment`;
+  //Delete a comment service
+  async remove(id: string, userId: string) {
+    const comment = await this.CommentModel.findById(id);
+
+    //check if comment owner is the same as the user trying to delete it
+    if(comment && comment.accountId.toString() !== userId){
+      throw new UnauthorizedException('Bạn không có quyền xoá bình luận này');
+    }
+
+    //delete comment images on Cloudinary
+    if(comment && comment.images && comment.images.length > 0){
+      //Delete comment images from Cloudinary
+      const deletePromises = comment.images.map(async (image) => {
+        return await this.cloudinary.deleteImage(image.public_id);
+      });
+      await Promise.all(deletePromises);
+    }
+
+    //recalculate flower rating after deleting a comment
+    if(comment){
+      await this.flowerService.deleteRating(comment.flowerId.toString(), comment.rating);
+    }
+
+    //Delete comment
+    await this.CommentModel.findByIdAndDelete(id);
+
+    return {
+      message: "Xoá bình luận thành công !"
+    };
   }
 }

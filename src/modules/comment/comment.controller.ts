@@ -37,8 +37,12 @@ export class CommentController {
     return this.commentService.update(+id, updateCommentDto);
   }
 
+  //Delete a comment
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.commentService.remove(+id);
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('admin','customer')
+  remove(@Param('id') id: string, @Request() req) {
+    const userId = req.user._id;
+    return this.commentService.remove(id, userId);
   }
 }
