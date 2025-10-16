@@ -226,8 +226,9 @@ export class FlowerService {
     };
   }
 
-  //Recalculate rating
-  async recalculateRating(flowerId: string, rating: number){
+  // ####RATING SERVICE###
+  //Add rating
+  async addRating(flowerId: string, rating: number){
     //get flower
     const flower = await this.FlowerModel.findById(flowerId);
     if(!flower){
@@ -242,6 +243,7 @@ export class FlowerService {
     flower.numRating += 1;
     await flower.save();
   }
+  // ####################
 
   //Delete a flower service
   async remove(id: string) {

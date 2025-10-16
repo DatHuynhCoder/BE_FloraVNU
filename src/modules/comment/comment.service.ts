@@ -34,7 +34,7 @@ export class CommentService {
     }
 
     //Change flower rating in Flower collection based on new comment rating
-    await this.flowerService.recalculateRating(createCommentDto.flowerId, createCommentDto.rating);
+    await this.flowerService.addRating(createCommentDto.flowerId, createCommentDto.rating);
 
     //Create new comment
     const newComment = new this.CommentModel({
@@ -49,8 +49,13 @@ export class CommentService {
     }
   }
 
-  findAll() {
-    return `This action returns all comment`;
+  async findAllByFlower(flowerId) {
+    //find all comments of a flower
+    const comments = await this.CommentModel.find({ flowerId }).populate('accountId', 'username avatar');
+
+    return {
+      data: comments
+    };
   }
 
   findOne(id: number) {

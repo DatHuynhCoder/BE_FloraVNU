@@ -21,14 +21,15 @@ export class CommentController {
     return this.commentService.create(userId,images, createCommentDto);
   }
 
-  @Get()
-  findAll() {
-    return this.commentService.findAll();
+  //find all comments of a flower
+  @Get(':flowerId')
+  findAllByFlower(@Param('flowerId') flowerId: string) {
+    return this.commentService.findAllByFlower(flowerId);
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.commentService.findOne(+id);
+  @Get()
+  findOne() {
+    return this.commentService.findOne(1);
   }
 
   @Patch(':id')
