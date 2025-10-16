@@ -1,15 +1,16 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 import mongoose, { HydratedDocument } from "mongoose";
+import { OrderItem } from './order-item.schema'
 
-class OrderItem {
-  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Flower', required: true })
-  flowerId: mongoose.Types.ObjectId;
+// class OrderItem {
+//   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Flower', required: true })
+//   flowerId: mongoose.Types.ObjectId;
 
-  @Prop({ required: true })
-  quantity: number;
-  // @Prop({ required: true })
-  // price: number;
-}
+//   @Prop({ required: true })
+//   quantity: number;
+//   // @Prop({ required: true })
+//   // price: number;
+// }
 
 @Schema({ timestamps: true })
 export class Order {

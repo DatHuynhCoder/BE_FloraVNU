@@ -49,12 +49,14 @@ export class OrderController {
   updateStatus(@Param('id') id: string, @Body('status') status: string) {
     return this.orderService.updateStatus(id, status);
   }
+
   // update an order
   @Patch(':id')
   @UseGuards(JwtAuthGuard)
   update(@Param('id') id: string, @Body() updateOrderDto: UpdateOrderDto) {
     return this.orderService.update(id, updateOrderDto);
   }
+
   // delete an order
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('admin')
