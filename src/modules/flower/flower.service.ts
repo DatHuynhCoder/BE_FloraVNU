@@ -226,6 +226,23 @@ export class FlowerService {
     };
   }
 
+  //Recalculate rating
+  async recalculateRating(flowerId: string, rating: number){
+    //get flower
+    const flower = await this.FlowerModel.findById(flowerId);
+    if(!flower){
+      throw new NotFoundException('Không tìm thấy hoa');
+    }
+    
+    //recalculate rating
+    const newRating = (flower.rating * flower.numRating + rating) / (flower.numRating + 1);
+
+    //update flower rating
+    flower.rating = Math.min(5, Math.max(0, parseFloat(newRating.toFixed(2))));
+    flower.numRating += 1;
+    await flower.save();
+  }
+
   //Delete a flower service
   async remove(id: string) {
     const flower = await this.FlowerModel.findById(id);
