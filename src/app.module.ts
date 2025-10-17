@@ -6,6 +6,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { AccountModule } from './modules/account/account.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { FlowerModule } from './modules/flower/flower.module';
+import { CommentModule } from './modules/comment/comment.module';
 import { OrderModule } from './modules/order/order.module';
 
 @Module({
@@ -22,6 +23,7 @@ import { OrderModule } from './modules/order/order.module';
     AccountModule,
     AuthModule,
     FlowerModule,
+    CommentModule
     OrderModule
   ],
   controllers: [AppController],

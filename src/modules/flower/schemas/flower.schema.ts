@@ -23,6 +23,9 @@ export class Flower {
   rating: number;
 
   @Prop({default: 0})
+  numRating: number;
+
+  @Prop({default: 0})
   stockQuantity: number;
 
   @Prop({default: 0})

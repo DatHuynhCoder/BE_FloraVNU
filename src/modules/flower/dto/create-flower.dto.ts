@@ -13,7 +13,7 @@ export class CreateFlowerDto {
   @IsOptional()
   @Transform(({ value }) => Number(value))
   @IsNumber()
-  price: string;
+  price: number;
 
   @IsOptional()
   @Transform(({ value }) => Number(value))
@@ -30,7 +30,7 @@ export class CreateFlowerDto {
   @IsOptional()
   @Transform(({ value }) => Number(value))
   @IsNumber()
-  discountPercent: Number;
+  discountPercent: number;
 
   @IsNotEmpty()
   @IsString()
