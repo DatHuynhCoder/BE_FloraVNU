@@ -244,6 +244,22 @@ export class FlowerService {
     await flower.save();
   }
 
+  //Recalculate rating because of update comment
+  async updateRating(flowerId: string, oldRating: number, newRating: number) {
+    //get flower
+    const flower = await this.FlowerModel.findById(flowerId);
+    if (!flower) {
+      throw new NotFoundException('Không tìm thấy hoa');
+    }
+
+    //recalculate rating
+    const newRate = (flower.rating * flower.numRating - oldRating + newRating) / flower.numRating
+
+    //update flower rating
+    flower.rating = Math.min(5, Math.max(0, parseFloat(newRate.toFixed(2))))
+    await flower.save()
+  }
+
   //Recalculate rating because of delete comment
   async deleteRating(flowerId: string, rating: number) {
     //get flower
