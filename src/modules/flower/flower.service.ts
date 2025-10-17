@@ -54,7 +54,7 @@ export class FlowerService {
   }
 
   //Search flower service
-  async search(query: SearchFlowerDto){
+  async search(query: SearchFlowerDto) {
     const {
       keyword,
       searchType,
@@ -72,38 +72,38 @@ export class FlowerService {
     const finalQuery: any = {}
 
     //keyword search
-    if(keyword){
-      if(searchType === 'name') {
-        finalQuery.basedName = { $regex: normalizeStr(keyword), $options: 'i'}
-      } else if (searchType === 'type'){
-        finalQuery.basedTypes = { $regex: normalizeStr(keyword), $options: 'i'}
+    if (keyword) {
+      if (searchType === 'name') {
+        finalQuery.basedName = { $regex: normalizeStr(keyword), $options: 'i' }
+      } else if (searchType === 'type') {
+        finalQuery.basedTypes = { $regex: normalizeStr(keyword), $options: 'i' }
       } else {
         finalQuery.$or = [
-          { basedName: { $regex: normalizeStr(keyword), $options: 'i'} },
-          { basedTypes: { $regex: normalizeStr(keyword), $options: 'i'} }
+          { basedName: { $regex: normalizeStr(keyword), $options: 'i' } },
+          { basedTypes: { $regex: normalizeStr(keyword), $options: 'i' } }
         ]
       }
     }
 
     //price filter
-    if(priceMin || priceMax){
+    if (priceMin || priceMax) {
       finalQuery.price = {}
-      if(priceMin){
+      if (priceMin) {
         finalQuery.price.$gte = priceMin
       }
-      if(priceMax){
+      if (priceMax) {
         finalQuery.price.$lte = priceMax
       }
     }
 
     //occasions, forms and types filter
-    if(occasions && occasions.length > 0){
+    if (occasions && occasions.length > 0) {
       finalQuery.baseOccasion = { $in: occasions.map(oc => normalizeStr(oc)) }
     }
-    if(forms && forms.length > 0){
+    if (forms && forms.length > 0) {
       finalQuery.basedForm = { $in: forms.map(form => normalizeStr(form)) }
     }
-    if(types && types.length > 0){
+    if (types && types.length > 0) {
       finalQuery.basedTypes = {
         $in: types.map(type => new RegExp(normalizeStr(type), 'i'))
       }
@@ -111,7 +111,7 @@ export class FlowerService {
 
     //sort example: sort=['price:asc','price:desc']
     let sortOption = {}
-    if(sort){
+    if (sort) {
       sort.forEach(item => {
         const [field, order] = item.split(':');
         sortOption[field] = order === 'asc' ? 1 : -1;
@@ -125,7 +125,7 @@ export class FlowerService {
       .limit(limit);
 
     const total = await this.FlowerModel.countDocuments(finalQuery);
-    
+
     return {
       data: flowers,
       total,
@@ -136,7 +136,7 @@ export class FlowerService {
   }
 
   //Get all flower occasion
-  async getAllOccasions(){
+  async getAllOccasions() {
     const occasions = await this.FlowerModel.distinct("occasion")
 
     return {
@@ -145,7 +145,7 @@ export class FlowerService {
   }
 
   //Get all flower types
-  async getAllTypes(){
+  async getAllTypes() {
     const types = await this.FlowerModel.distinct("types")
 
     return {
@@ -154,7 +154,7 @@ export class FlowerService {
   }
 
   //Get all flower forms
-  async getAllForms(){
+  async getAllForms() {
     const forms = await this.FlowerModel.distinct("form")
 
     return {
@@ -169,7 +169,7 @@ export class FlowerService {
   async findOne(id: string) {
     //get flower
     const flower = await this.FlowerModel.findById(id);
-    if(!flower){
+    if (!flower) {
       throw new NotFoundException('Không tìm thấy hoa');
     }
     return {
@@ -225,6 +225,62 @@ export class FlowerService {
       message: "Cập nhật hoa thành công !"
     };
   }
+
+  // ####RATING SERVICE AFFECT BY COMMENT###
+  //Recalculate rating because of new comment
+  async addRating(flowerId: string, rating: number) {
+    //get flower
+    const flower = await this.FlowerModel.findById(flowerId);
+    if (!flower) {
+      throw new NotFoundException('Không tìm thấy hoa');
+    }
+
+    //recalculate rating
+    const newRating = (flower.rating * flower.numRating + rating) / (flower.numRating + 1);
+
+    //update flower rating
+    flower.rating = Math.min(5, Math.max(0, parseFloat(newRating.toFixed(2))));
+    flower.numRating += 1;
+    await flower.save();
+  }
+
+  //Recalculate rating because of update comment
+  async updateRating(flowerId: string, oldRating: number, newRating: number) {
+    //get flower
+    const flower = await this.FlowerModel.findById(flowerId);
+    if (!flower) {
+      throw new NotFoundException('Không tìm thấy hoa');
+    }
+
+    //recalculate rating
+    const newRate = (flower.rating * flower.numRating - oldRating + newRating) / flower.numRating
+
+    //update flower rating
+    flower.rating = Math.min(5, Math.max(0, parseFloat(newRate.toFixed(2))))
+    await flower.save()
+  }
+
+  //Recalculate rating because of delete comment
+  async deleteRating(flowerId: string, rating: number) {
+    //get flower
+    const flower = await this.FlowerModel.findById(flowerId);
+    if (!flower) {
+      throw new NotFoundException('Không tìm thấy hoa');
+    }
+
+    //recalculate rating
+    if (flower.numRating <= 1) {
+      flower.rating = 0;
+      flower.numRating = 0;
+    } else {
+      const newRating = (flower.rating * flower.numRating - rating) / (flower.numRating - 1);
+      flower.rating = Math.min(5, Math.max(0, parseFloat(newRating.toFixed(2))));
+      flower.numRating -= 1;
+    }
+
+    await flower.save();
+  }
+  // ####################
 
   //Delete a flower service
   async remove(id: string) {

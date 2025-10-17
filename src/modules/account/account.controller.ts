@@ -1,7 +1,11 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, ParseIntPipe } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, UseInterceptors, UploadedFile, Req, ForbiddenException } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { AccountService } from './account.service';
 import { CreateAccountDto } from './dto/create-account.dto';
 import { UpdateAccountDto } from './dto/update-account.dto';
+import { ChangePasswordDto } from './dto/change-password.dto';
+import type { Express, Request } from 'express';
+import { JwtAuthGuard } from '../auth/passport/jwt-auth.guard';
 
 @Controller('account')
 export class AccountController {
@@ -30,14 +34,47 @@ export class AccountController {
     return this.accountService.findOneById(id);
   }
 
-
+  //Update account profile
+  @UseGuards(JwtAuthGuard)
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateAccountDto: UpdateAccountDto) {
-    return this.accountService.update(+id, updateAccountDto);
+  @UseInterceptors(FileInterceptor('avatar'))
+  updateProfile(
+    @Param('id') id: string,
+    @Body() updateAccountDto: UpdateAccountDto,
+    @UploadedFile() avatar?: Express.Multer.File,
+    @Req() req?: Request & { user?: { userId?: string; sub?: string; id?: string; _id?: string } },
+  ){
+    const requesterId = req?.user?.userId ?? req?.user?.sub ?? req?.user?.id ?? req?.user?._id;
+    if(requesterId !== id){
+      throw new ForbiddenException('You can only update your own profile');
+    }
+    const { role: _role, password: _pw, ...safeDto } =
+      (updateAccountDto as UpdateAccountDto & { role?: unknown; password?: unknown });
+    return this.accountService.updateProfile(id, safeDto, avatar);
   }
 
+  @UseGuards(JwtAuthGuard)
+  @Patch(':id/password')
+  changePassword(
+    @Param('id') id: string,
+    @Body() changePasswordDto: ChangePasswordDto,
+    @Req() req?: Request & { user?: { userId?: string; sub?: string; id?: string; _id?: string } },
+  ){
+    const requesterId = req?.user?.userId ?? req?.user?.sub ?? req?.user?.id ?? req?.user?._id;
+    if(requesterId !== id){
+      throw new ForbiddenException('You can only change your own password');
+    }
+    return this.accountService.changePassword(id, changePasswordDto);
+  }
+
+  @UseGuards(JwtAuthGuard)
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.accountService.remove(+id);
+  remove(@Param('id') id: string, 
+  @Req() req?: Request & { user?: { userId?: string; sub?: string; id?: string; _id?: string } },) {
+    const requesterId = req?.user?.userId ?? req?.user?.sub ?? req?.user?.id ?? req?.user?._id;
+    if(requesterId !== id){
+      throw new ForbiddenException('You can only delete your own account');
+    }
+    return this.accountService.remove(id);
   }
 }
