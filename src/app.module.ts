@@ -23,7 +23,7 @@ import { OrderModule } from './modules/order/order.module';
     AccountModule,
     AuthModule,
     FlowerModule,
-    CommentModule
+    CommentModule,
     OrderModule
   ],
   controllers: [AppController],
