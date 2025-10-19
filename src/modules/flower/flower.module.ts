@@ -13,5 +13,6 @@ import { CloudinaryModule } from '../../common/services/cloudinary/cloudinary.mo
   ],
   controllers: [FlowerController],
   providers: [FlowerService,CloudinaryService],
+  exports: [FlowerService]
 })
 export class FlowerModule {}

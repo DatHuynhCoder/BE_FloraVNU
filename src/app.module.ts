@@ -6,6 +6,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { AccountModule } from './modules/account/account.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { FlowerModule } from './modules/flower/flower.module';
+import { CommentModule } from './modules/comment/comment.module';
 import { OrderModule } from './modules/order/order.module';
 import { PaymentModule } from './modules/payment/payment.module';
 
@@ -23,6 +24,7 @@ import { PaymentModule } from './modules/payment/payment.module';
     AccountModule,
     AuthModule,
     FlowerModule,
+    CommentModule,
     OrderModule,
     PaymentModule
   ],
