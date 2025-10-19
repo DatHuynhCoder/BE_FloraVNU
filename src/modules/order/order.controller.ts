@@ -11,6 +11,7 @@ import { Controller, Get, Post, Body, Patch, Param, Delete, Request, UseGuards, 
 import { Roles } from 'src/decorators/roles.decorator';
 import { RolesGuard } from 'src/guards/roles.guard';
 import { UpdateOrderDto } from './dto/update-order.dto';
+import { UpdateOrderStatusDto } from './dto/update-order-status.dto';
 
 @Controller('order')
 export class OrderController {
@@ -37,7 +38,7 @@ export class OrderController {
 
   @Get('account')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles('admin, user')
+  @Roles('admin', 'customer')
   findByAccountId(@Request() req) {
     return this.orderService.findByAccountId(req.user._id);
   }
@@ -46,8 +47,8 @@ export class OrderController {
   @Patch(':id/status')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('admin')
-  updateStatus(@Param('id') id: string, @Body('status') status: string) {
-    return this.orderService.updateStatus(id, status);
+  updateStatus(@Param('id') id: string, @Body() updateOrderStatusDto: UpdateOrderStatusDto) {
+    return this.orderService.updateStatus(id, updateOrderStatusDto.status);
   }
 
   // update an order
