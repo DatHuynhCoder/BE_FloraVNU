@@ -54,8 +54,8 @@ export class Order {
   note: string;
 
   // may be removed because createdAt will be used instead
-  @Prop({ required: true })
-  orderDate: Date;
+  // @Prop({ required: true })
+  // orderDate: Date;
 
   @Prop({ required: true, enum: ["Pending", "Processing", "Delivered", "Cancelled"], default: "Pending" })
   orderStatus: string;

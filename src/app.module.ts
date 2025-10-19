@@ -7,6 +7,7 @@ import { AccountModule } from './modules/account/account.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { FlowerModule } from './modules/flower/flower.module';
 import { OrderModule } from './modules/order/order.module';
+import { PaymentModule } from './modules/payment/payment.module';
 
 @Module({
   imports: [
@@ -22,7 +23,8 @@ import { OrderModule } from './modules/order/order.module';
     AccountModule,
     AuthModule,
     FlowerModule,
-    OrderModule
+    OrderModule,
+    PaymentModule
   ],
   controllers: [AppController],
   providers: [AppService],

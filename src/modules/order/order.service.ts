@@ -46,10 +46,12 @@ export class OrderService {
   }
 
   async updateStatus(id: string, status: string) {
-    const order = await this.orderModel.findByIdAndUpdate(id, { orderStatus: status }, { new: true });
+    const order = await this.orderModel.findById(id)
+    if (!order) throw new NotFoundException()
+    const updatedOrder = await this.orderModel.findByIdAndUpdate(id, { orderStatus: status }, { new: true });
     return {
       status: "success",
-      data: order
+      data: updatedOrder
     }
   }
 
