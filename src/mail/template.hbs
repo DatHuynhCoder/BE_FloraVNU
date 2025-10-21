@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <title>FloraVNU Password Reset</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    @media only screen and (max-width: 600px) {
+      .container { width: 100% !important; }
+      .p-24 { padding: 16px !important; }
+      .h1 { font-size: 22px !important; }
+      .otp { font-size: 22px !important; letter-spacing: 4px !important; }
+      .btn { display: block !important; width: 100% !important; }
+    }
+  </style>
+</head>
+<body style="margin:0; padding:0; background-color:#FAFAFA;">
+  <!-- Preheader (hidden preview text) -->
+  <div style="display:none; max-height:0; overflow:hidden; opacity:0;">
+    Mã OTP đặt lại mật khẩu FloraVNU của bạn: {{OTP}} (hiệu lực 5 phút).
+  </div>
+
+  <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="background-color:#FAFAFA;">
+    <tr>
+      <td align="center" style="padding:24px;">
+        <!-- Container -->
+        <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="600" class="container" style="width:600px; max-width:100%; background-color:#ffffff; border-radius:8px; overflow:hidden;">
+          <!-- Header -->
+          <tr>
+            <td align="center" style="background-color:#0070f3; padding:24px;">
+              <h1 class="h1" style="margin:0; font-family:Arial, sans-serif; font-size:24px; line-height:1.3; color:#ffffff; font-weight:700;">
+                FloraVNU Password Reset
+              </h1>
+            </td>
+          </tr>
+
+          <!-- Body -->
+          <tr>
+            <td class="p-24" style="padding:24px; font-family:Arial, sans-serif; color:#222222; font-size:16px; line-height:1.6;">
+              <p style="margin:0 0 16px 0;">Xin chào {{name}},</p>
+
+              <p style="margin:0 0 16px 0;">
+                Bạn vừa yêu cầu <strong>đặt lại mật khẩu</strong> cho tài khoản FloraVNU. Vui lòng sử dụng mã OTP dưới đây (hiệu lực trong <strong>5 phút</strong>):
+              </p>
+
+              <p style="margin:0 0 8px 0; text-align:center;">
+                <span class="otp" style="display:inline-block; font-family:Arial, monospace; font-size:26px; font-weight:700; letter-spacing:6px; padding:12px 16px; border:2px dashed #0070f3; border-radius:6px; color:#111111;">
+                  {{OTP}}
+                </span>
+              </p>
+              <p style="margin:0 0 16px 0;">
+                Nếu bạn <strong>không thực hiện</strong> yêu cầu này, vui lòng bỏ qua email hoặc liên hệ chúng tôi để được hỗ trợ.
+              </p>
+
+              <p style="margin:0;">
+                Trân trọng,<br/>Đội ngũ FloraVNU
+              </p>
+            </td>
+          </tr>
+          <!-- Footer -->
+          <tr>
+            <td style="background-color:#f6f6f6; padding:24px; font-family:Arial, sans-serif; color:#555555; font-size:14px; line-height:1.6; text-align:center;">
+              <p style="margin:0 0 8px 0;">
+                Cần hỗ trợ? Liên hệ <a href="mailto:support@floravnu.com" style="color:#0070f3; text-decoration:none;">support@floravnu.com</a>
+              </p>
+              <p style="margin:0; color:#888888; font-size:12px;">
+                Email này được gửi tự động. Vui lòng không trả lời trực tiếp.
+              </p>
+            </td>
+          </tr>
+        </table>
+        <!-- Spacer -->
+        <div style="height:24px; line-height:24px;">&nbsp;</div>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>

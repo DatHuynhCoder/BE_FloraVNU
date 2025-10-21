@@ -8,12 +8,17 @@ import { Account } from './schemas/account.schema';
 import { Model } from 'mongoose';
 import { hashPass, comparePass } from 'src/utils/hashPass';
 import type {Express} from 'express';
+import { MailerService } from '@nestjs-modules/mailer';
+import { randomInt } from 'crypto';
+import { ForgotPasswordDto } from './dto/forgot-password.dto';
+import { ResetPasswordDto } from './dto/reset-password.dto';
 
 @Injectable()
 export class AccountService {
   constructor(
     @InjectModel(Account.name) private AccountModel: Model<Account>,
     private readonly cloudinaryService: CloudinaryService,
+    private readonly mailerService: MailerService,
   ) {}
 
   //Function to check if email exists
@@ -83,6 +88,7 @@ export class AccountService {
     }
   }
 
+  //Update account profile 
   async updateProfile(id: string, updateAccountDto: UpdateAccountDto, avatar?: Express.Multer.File) {
     const account = await this.AccountModel.findById(id);
     if (!account) {
@@ -143,6 +149,8 @@ export class AccountService {
       data: updated 
     };
   }
+
+  //Change account password
   async changePassword(id: string, changePasswordDto: ChangePasswordDto) {
     if(changePasswordDto.newPassword == changePasswordDto.currentPassword){
       throw new BadRequestException('New password must be different from current password');
@@ -163,7 +171,8 @@ export class AccountService {
     return { message: 'Password changed successfully' };
   }
 
-  async remove(id: string) {
+  //Delete account
+  async deleteAccount(id: string) {
     const account = await this.AccountModel.findByIdAndDelete(id).lean<Account | null>();
     if (!account) {
       throw new NotFoundException(`Account with id ${id} not found`);
@@ -172,5 +181,93 @@ export class AccountService {
       this.cloudinaryService.deleteImage(account.avatar.public_id);
     }
     return { message: `Account with id ${id} has been deleted` };
+  }
+  
+  //Generate numeric OTP
+  private generateNumericOtp(length = 6): string {
+    return Array.from({ length }, () => randomInt(0, 10)).join('');
+  }
+
+  async requestPasswordReset(forgotPasswordDto: ForgotPasswordDto) {
+    const { email } = forgotPasswordDto;
+    const account = await this.AccountModel.findOne({ email }).select('_id email username');
+    // Always return 200 to avoid revealing whether the email exists
+    if (!account) {
+      return { message: 'If the email exists, we have sent a password reset OTP' };
+    }
+
+    const otp = this.generateNumericOtp(6);
+    const expires = new Date(Date.now() + 5 * 60 * 1000); // 5 minutes from now
+    await this.AccountModel.updateOne(
+      { _id: account._id },
+      {
+        resetPasswordOTP: otp,
+        resetPasswordExpires: expires,
+        resetPasswordAttempts: 0,
+      }
+    );
+
+    await this.mailerService.sendMail({
+      to: account.email,
+      subject: 'FloraVNU - Password Reset OTP',
+      template: 'template.hbs',
+      context: {
+        name: account.username ?? 'you',
+        OTP: otp,
+      },
+    });
+
+    return { message: 'If the email exists, we have sent a password reset OTP' };
+  }
+
+
+  //Reset password with OTP
+  async resetPasswordWithOtp(resetPasswordDto: ResetPasswordDto) {
+    const { email, otp, newPassword, confirmNewPassword } = resetPasswordDto;
+    if (newPassword !== confirmNewPassword) {
+      throw new BadRequestException('New password and confirm new password do not match');
+    }
+
+    const account = await this.AccountModel.findOne({ email });
+    if (!account || !account.resetPasswordOTP || !account.resetPasswordExpires) {
+      throw new BadRequestException('OTP is not valid');
+    }
+
+    // Check number of attempts
+    const attempts = account.resetPasswordAttempts ?? 0;
+    if (attempts >= 5) {
+      throw new BadRequestException('You have exceeded the number of attempts. Please request a new OTP');
+    }
+
+    // Check expiration
+    if (account.resetPasswordExpires.getTime() < Date.now()) {
+      // Remove OTP when expired
+      await this.AccountModel.updateOne(
+        { _id: account._id },
+        { $unset: { resetPasswordOTP: 1, resetPasswordExpires: 1 }, $set: { resetPasswordAttempts: 0 } }
+      );
+      throw new BadRequestException('OTP has expired. Please request a new OTP');
+    }
+
+    if (account.resetPasswordOTP !== otp) {
+      await this.AccountModel.updateOne(
+        { _id: account._id },
+        { $inc: { resetPasswordAttempts: 1 } }
+      );
+      throw new BadRequestException('OTP is not valid');
+    }
+
+    // All checks passed, update password
+    const hashed = await hashPass(newPassword);
+    await this.AccountModel.updateOne(
+      { _id: account._id },
+      {
+        $set: { password: hashed },
+        $unset: { resetPasswordOTP: 1, resetPasswordExpires: 1 },
+        $setOnInsert: { resetPasswordAttempts: 0 }
+      }
+    );
+
+    return { message: 'Change password successfully' };
   }
 }

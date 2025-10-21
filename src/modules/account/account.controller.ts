@@ -6,10 +6,16 @@ import { UpdateAccountDto } from './dto/update-account.dto';
 import { ChangePasswordDto } from './dto/change-password.dto';
 import type { Express, Request } from 'express';
 import { JwtAuthGuard } from '../auth/passport/jwt-auth.guard';
+import { MailerService } from '@nestjs-modules/mailer';
+import { ForgotPasswordDto } from './dto/forgot-password.dto';
+import { ResetPasswordDto } from './dto/reset-password.dto';
 
 @Controller('account')
 export class AccountController {
-  constructor(private readonly accountService: AccountService) {}
+  constructor(
+    private readonly accountService: AccountService,
+    private readonly mailerService: MailerService,
+  ) {}
 
   //Register a new account controller
   @Post()
@@ -75,6 +81,16 @@ export class AccountController {
     if(requesterId !== id){
       throw new ForbiddenException('You can only delete your own account');
     }
-    return this.accountService.remove(id);
+    return this.accountService.deleteAccount(id);
+  }
+  
+  @Post('password/forgot')
+  requestPasswordReset(@Body() forgotPasswordDto: ForgotPasswordDto) {
+    return this.accountService.requestPasswordReset(forgotPasswordDto);
+  }
+
+  @Post('password/reset')
+  resetPassword(@Body() dto: ResetPasswordDto) {
+    return this.accountService.resetPasswordWithOtp(dto);
   }
 }
