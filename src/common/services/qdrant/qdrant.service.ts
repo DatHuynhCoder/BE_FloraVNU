@@ -3,7 +3,8 @@ import { Injectable, OnModuleInit } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { QdrantClient } from "@qdrant/qdrant-js";
 import { FlowerDocument } from "../../../modules/flower/schemas/flower.schema"
-import { trimHTMLTags } from "src/utils/trimHTMLTags";
+import { trimHTMLTags } from "../../../utils/trimHTMLTags";
+import { getQdrantId } from "../../../utils/getQdrantId";
 
 @Injectable()
 export class QdrantService implements OnModuleInit {
@@ -68,6 +69,8 @@ export class QdrantService implements OnModuleInit {
   //Vectorize FlowerInfo and store it on Qdrant DB
   async embedAndStoreFlower(flower: FlowerDocument) {
     const flowerTypes = flower.types.join(' ');
+    
+    //Prepare text to embed
     const textToEmbed =
       `Tên hoa: ${flower.name}. 
        Mô tả: ${trimHTMLTags(flower.description)}. 
@@ -87,10 +90,12 @@ export class QdrantService implements OnModuleInit {
       wait: true,
       points: [
         {
-          id: flower._id.toString(),
+          //id only use uuid to avoid issues with ObjectId type
+          id: getQdrantId(flower._id.toString()),
           vector: vector,
           //Payload fields are used to filter
           payload: {
+            mongoId: flower._id.toString(),
             price: flower.price,
             rating: flower.rating,
             stockQuantity: flower.stockQuantity,
@@ -111,11 +116,11 @@ export class QdrantService implements OnModuleInit {
     const searchResult = await this.client.search(this.collectionName, {
       vector: queryVector,
       limit: limit,
-      with_payload: false
+      with_payload: true
     })
 
     //get only ids, then we get full flowers info by query them on mongoDB
-    const result = searchResult.map((result) => result.id.toString());
+    const result = searchResult.map((result) => result.payload?.mongoId as string);
 
     return result;
   }

@@ -6,28 +6,16 @@ import { QueryChatbotDto } from './dto/query-chatbot.dto';
 export class ChatbotController {
   constructor(private readonly chatbotService: ChatbotService) {}
 
-  @Post('query')
-  async getChatbotResponse(@Body() queryChatbotDto: QueryChatbotDto) {
-    return this.chatbotService.getResponse(queryChatbotDto.query);
+  //chatbot generate service
+  @Post('generate')
+  async generateResponse(@Body() queryChatbotDto: QueryChatbotDto) {
+    return this.chatbotService.getResponse(queryChatbotDto);
   }
 
-  @Post()
-  create(@Body() queryChatbotDto: QueryChatbotDto) {
-    return this.chatbotService.create(queryChatbotDto);
+  //Sync data between Qdrant DB and MongoDB
+  @Post('sync')
+  syncData(){
+    return this.chatbotService.syncDataVectorDB()
   }
 
-  @Get()
-  findAll() {
-    return this.chatbotService.findAll();
-  }
-
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.chatbotService.findOne(+id);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.chatbotService.remove(+id);
-  }
 }
