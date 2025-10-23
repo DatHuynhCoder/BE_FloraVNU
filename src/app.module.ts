@@ -10,6 +10,7 @@ import { CommentModule } from './modules/comment/comment.module';
 import { OrderModule } from './modules/order/order.module';
 import { ChatbotModule } from './modules/chatbot/chatbot.module';
 import { QdrantModule } from './common/services/qdrant/qdrant.module';
+import { PaymentModule } from './modules/payment/payment.module';
 
 @Module({
   imports: [
@@ -28,7 +29,8 @@ import { QdrantModule } from './common/services/qdrant/qdrant.module';
     CommentModule,
     OrderModule,
     ChatbotModule,
-    QdrantModule
+    QdrantModule,
+    PaymentModule
   ],
   controllers: [AppController],
   providers: [AppService],
