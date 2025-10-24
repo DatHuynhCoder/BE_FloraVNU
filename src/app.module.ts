@@ -11,6 +11,7 @@ import { OrderModule } from './modules/order/order.module';
 import { ChatbotModule } from './modules/chatbot/chatbot.module';
 import { QdrantModule } from './common/services/qdrant/qdrant.module';
 import { PaymentModule } from './modules/payment/payment.module';
+import { CartModule } from './modules/cart/cart.module';
 
 @Module({
   imports: [
@@ -30,7 +31,8 @@ import { PaymentModule } from './modules/payment/payment.module';
     OrderModule,
     ChatbotModule,
     QdrantModule,
-    PaymentModule
+    PaymentModule,
+    CartModule
   ],
   controllers: [AppController],
   providers: [AppService],
