@@ -60,6 +60,6 @@ export class CreateOrderDto {
   note: string;
 
   // may be removed because createdAt will be used instead
-  @IsNotEmpty()
-  orderDate: Date;
+  // @IsNotEmpty()
+  // orderDate: Date;
 }
