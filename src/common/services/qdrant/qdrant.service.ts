@@ -91,7 +91,7 @@ export class QdrantService implements OnModuleInit {
       points: [
         {
           //id only use uuid to avoid issues with ObjectId type
-          id: getQdrantId(flower._id.toString()),
+          id: await getQdrantId(flower._id.toString()),
           vector: vector,
           //Payload fields are used to filter
           payload: {
