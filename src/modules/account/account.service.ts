@@ -1,12 +1,12 @@
 import { BadRequestException, ConflictException, NotFoundException, Injectable } from '@nestjs/common';
-import { CloudinaryService } from 'src/common/services/cloudinary/cloudinary.service';
+import { CloudinaryService } from '../../common/services/cloudinary/cloudinary.service';
 import { CreateAccountDto } from './dto/create-account.dto';
 import { UpdateAccountDto } from './dto/update-account.dto';
 import { ChangePasswordDto } from './dto/change-password.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Account } from './schemas/account.schema';
 import { Model } from 'mongoose';
-import { hashPass, comparePass } from 'src/utils/hashPass';
+import { hashPass, comparePass } from '../../utils/hashPass';
 import type {Express} from 'express';
 
 @Injectable()
