@@ -8,6 +8,8 @@ import { AuthModule } from './modules/auth/auth.module';
 import { FlowerModule } from './modules/flower/flower.module';
 import { CommentModule } from './modules/comment/comment.module';
 import { OrderModule } from './modules/order/order.module';
+import { ChatbotModule } from './modules/chatbot/chatbot.module';
+import { QdrantModule } from './common/services/qdrant/qdrant.module';
 import { PaymentModule } from './modules/payment/payment.module';
 import { CartModule } from './modules/cart/cart.module';
 
@@ -27,6 +29,8 @@ import { CartModule } from './modules/cart/cart.module';
     FlowerModule,
     CommentModule,
     OrderModule,
+    ChatbotModule,
+    QdrantModule,
     PaymentModule,
     CartModule
   ],

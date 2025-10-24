@@ -162,8 +162,9 @@ export class FlowerService {
     }
   }
 
+  //find all flowers
   findAll() {
-    return `This action returns all flower`;
+    return this.FlowerModel.find();
   }
 
   async findOne(id: string) {
@@ -175,6 +176,11 @@ export class FlowerService {
     return {
       data: flower
     };
+  }
+
+  //Find flowers by ids
+  async findByIds(ids: string[]){
+    return this.FlowerModel.find({ _id: { $in: ids } })
   }
 
 
