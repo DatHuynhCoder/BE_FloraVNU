@@ -3,7 +3,7 @@ import { AccountService } from './account.service';
 import { AccountController } from './account.controller';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Account, AccountSchema } from './schemas/account.schema';
-import { CloudinaryModule } from 'src/common/services/cloudinary/cloudinary.module';
+import { CloudinaryModule } from '../../common/services/cloudinary/cloudinary.module';
 
 @Module({
   imports:[
