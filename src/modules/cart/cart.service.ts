@@ -35,11 +35,10 @@ export class CartService {
         cartItems: [
           {
             flowerId: new mongoose.Types.ObjectId(addToCartDto.flowerId),
-            quantity: 1,
-            price: addToCartDto.flowerPrice,
+            quantity: addToCartDto.quantity,
+            // price: addToCartDto.flowerPrice,
           },
-        ],
-        totalPrice: addToCartDto.flowerPrice,
+        ]
       });
       return newCart;
     }
@@ -50,24 +49,24 @@ export class CartService {
     );
 
     if (existingItem) {
-      // Sản phẩm đã có → tăng quantity lên 1
-      existingItem.quantity++;
+      // Sản phẩm đã có → tăng quantity lên
+      existingItem.quantity += addToCartDto.quantity;
     } else {
       // Sản phẩm chưa có → thêm mới
       userCart.cartItems.push({
         flowerId: new mongoose.Types.ObjectId(addToCartDto.flowerId),
-        quantity: 1,
-        price: addToCartDto.flowerPrice,
+        quantity: addToCartDto.quantity,
+        // price: addToCartDto.flowerPrice,
       });
     }
 
     userCart.markModified('cartItems');
 
     // Cập nhật totalPrice
-    userCart.totalPrice = userCart.cartItems.reduce(
-      (acc, item) => acc + Number(item.price) * Number(item.quantity),
-      0,
-    );
+    // userCart.totalPrice = userCart.cartItems.reduce(
+    //   (acc, item) => acc + Number(item.price) * Number(item.quantity),
+    //   0,
+    // );
 
     const updatedCart = await userCart.save();
     return {
@@ -80,7 +79,10 @@ export class CartService {
   async findOne(uid: string) {
     const cart = await this.cartModel
       .findOne({ accountId: uid })
-      .populate('cartItems.flowerId'); // populate nếu muốn hiển thị thông tin hoa
+      .populate({
+        path: 'cartItems.flowerId',
+        select: 'name description price image.url'
+      }); // populate nếu muốn hiển thị thông tin hoa
     if (!cart) throw new NotFoundException('Cart not found');
     return cart;
   }
@@ -104,10 +106,10 @@ export class CartService {
       );
     }
 
-    cart.totalPrice = cart.cartItems.reduce(
-      (acc, i) => acc + i.price * i.quantity,
-      0
-    );
+    // cart.totalPrice = cart.cartItems.reduce(
+    //   (acc, i) => acc + i.price * i.quantity,
+    //   0
+    // );
 
     const updatedCart = await cart.save();
     return {
@@ -127,10 +129,10 @@ export class CartService {
 
     cart.markModified('cartItems');
 
-    cart.totalPrice = cart.cartItems.reduce(
-      (acc, i) => acc + i.price * i.quantity,
-      0
-    );
+    // cart.totalPrice = cart.cartItems.reduce(
+    //   (acc, i) => acc + i.price * i.quantity,
+    //   0
+    // );
 
     const updatedCart = await cart.save();
     return {
@@ -148,7 +150,7 @@ export class CartService {
 
     cart.markModified('cartItems');
 
-    cart.totalPrice = 0;
+    // cart.totalPrice = 0;
 
     await cart.save();
 
@@ -172,9 +174,9 @@ export class CartService {
 
     cart.markModified('cartItems');
 
-    cart.totalPrice = cart.cartItems.reduce(
-      (acc, i) => acc + i.price * i.quantity, 0
-    );
+    // cart.totalPrice = cart.cartItems.reduce(
+    //   (acc, i) => acc + i.price * i.quantity, 0
+    // );
 
     console.log("after: ", cart);
 
@@ -200,9 +202,9 @@ export class CartService {
 
     cart.markModified('cartItems');
 
-    cart.totalPrice = cart.cartItems.reduce(
-      (acc, i) => acc + i.price * i.quantity, 0
-    );
+    // cart.totalPrice = cart.cartItems.reduce(
+    //   (acc, i) => acc + i.price * i.quantity, 0
+    // );
 
     await cart.save();
     return { status: 'success', data: cart };

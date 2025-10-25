@@ -16,11 +16,13 @@ export class OrderService {
     const createdOrder = new this.orderModel({
       ...createOrderDto,
       accountId: uid,
-      orderStatus: 'Pending'
+      orderStatus: 'Pending',
+      paymentMethod: 'Bank'
     });
     await createdOrder.save();
     return {
       status: "success",
+      message: "order created successfully",
       data: createdOrder
     }
   }
@@ -33,6 +35,7 @@ export class OrderService {
     const order = await this.orderModel.findById(id);
     return {
       status: "success",
+      message: "...",
       data: order
     }
   }
@@ -41,6 +44,7 @@ export class OrderService {
     const orders = await this.orderModel.find({ accountId: accountId });
     return {
       status: "success",
+      message: `all orders of user with id: ${accountId}`,
       data: orders
     }
   }
@@ -51,6 +55,7 @@ export class OrderService {
     const updatedOrder = await this.orderModel.findByIdAndUpdate(id, { orderStatus: status }, { new: true });
     return {
       status: "success",
+      message: "status updated successfully",
       data: updatedOrder
     }
   }
@@ -63,7 +68,8 @@ export class OrderService {
     })
     return {
       status: "success",
-      message: `This action updates a #${id} order`
+      message: "order updated successfully",
+      data: order
     };
   }
 
@@ -72,7 +78,8 @@ export class OrderService {
     await this.orderModel.findByIdAndDelete(id);
     return {
       status: "success",
-      message: 'Order deleted successfully'
+      message: 'Order deleted successfully',
+      data: null
     }
   }
 }

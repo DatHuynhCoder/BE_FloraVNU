@@ -59,6 +59,9 @@ export class Order {
 
   @Prop({ required: true, enum: ["Pending", "Processing", "Delivered", "Cancelled"], default: "Pending" })
   orderStatus: string;
+
+  @Prop({ required: true, enum: ["Bank", "Cash"], default: "Bank" })
+  paymentMethod: string;
 }
 
 export type OrderDocument = HydratedDocument<Order>;
