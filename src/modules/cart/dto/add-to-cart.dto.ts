@@ -6,7 +6,11 @@ export class AddToCartDto {
   @IsString()
   flowerId: string;
 
+  // @IsNotEmpty()
+  // @IsNumber()
+  // flowerPrice: number;
+
   @IsNotEmpty()
   @IsNumber()
-  flowerPrice: number;
+  quantity: number
 }

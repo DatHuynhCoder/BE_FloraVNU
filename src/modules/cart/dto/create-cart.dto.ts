@@ -8,9 +8,9 @@ class CartItem {
   @IsNotEmpty()
   @Transform(({ value }) => Number(value))
   quantity: number;
-  @IsNotEmpty()
-  @Transform(({ value }) => Number(value))
-  price: number;
+  // @IsNotEmpty()
+  // @Transform(({ value }) => Number(value))
+  // price: number;
 }
 
 export class CreateCartDto {
@@ -20,7 +20,7 @@ export class CreateCartDto {
   @IsNotEmpty()
   cartItems: CartItem[]
 
-  @IsNotEmpty()
-  @Transform(({ value }) => Number(value))
-  totalPrice: number
+  // @IsNotEmpty()
+  // @Transform(({ value }) => Number(value))
+  // totalPrice: number
 }
