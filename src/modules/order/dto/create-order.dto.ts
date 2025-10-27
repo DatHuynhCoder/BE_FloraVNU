@@ -1,5 +1,5 @@
 import { Transform } from "class-transformer";
-import { IsArray, IsNotEmpty, IsNumber, IsOptional, IsString, Max, Min } from "class-validator";
+import { IsArray, IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString, Max, Min } from "class-validator";
 import mongoose from "mongoose";
 
 class OrderItem {
@@ -62,4 +62,8 @@ export class CreateOrderDto {
   // may be removed because createdAt will be used instead
   // @IsNotEmpty()
   // orderDate: Date;
+  @IsOptional()
+  @IsString()
+  @IsEnum(["Bank", "Cash"], { message: 'paymentMethod must be either Bank or Cash' })
+  paymentMethod: string;
 }

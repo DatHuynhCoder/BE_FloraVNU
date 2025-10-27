@@ -17,7 +17,7 @@ export class OrderService {
       ...createOrderDto,
       accountId: uid,
       orderStatus: 'Pending',
-      paymentMethod: 'Bank'
+      // paymentMethod: 'Bank'
     });
     await createdOrder.save();
     return {
