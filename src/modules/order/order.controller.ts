@@ -12,6 +12,7 @@ import { Roles } from '../../decorators/roles.decorator';
 import { RolesGuard } from '../../guards/roles.guard';
 import { UpdateOrderDto } from './dto/update-order.dto';
 import { UpdateOrderStatusDto } from './dto/update-order-status.dto';
+import { UpdateOrderPaymentMethodDto } from './dto/update-payment-method.dto';
 
 @Controller('order')
 export class OrderController {
@@ -49,6 +50,14 @@ export class OrderController {
   @Roles('admin')
   updateStatus(@Param('id') id: string, @Body() updateOrderStatusDto: UpdateOrderStatusDto) {
     return this.orderService.updateStatus(id, updateOrderStatusDto.status);
+  }
+
+  // change payment method
+  @Patch(':id/payment-method')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('admin', 'customer')
+  updatePaymentMethod(@Param('id') id: string, @Request() req, @Body() updateOrderPaymentMethodDto: UpdateOrderPaymentMethodDto) {
+    return this.orderService.updatePaymentMethod(id, req.user._id, updateOrderPaymentMethodDto.paymentMethod);
   }
 
   // update an order
