@@ -7,12 +7,14 @@ import { Flower } from './schemas/flower.schema';
 import { Model } from 'mongoose';
 import { normalizeStr } from '../../utils/normalizeStr';
 import { SearchFlowerDto } from './dto/search-flower.dto';
+import { QdrantService } from '../../common/services/qdrant/qdrant.service';
 
 @Injectable()
 export class FlowerService {
   constructor(
     @InjectModel(Flower.name) private FlowerModel: Model<Flower>,
-    private readonly cloudinary: CloudinaryService
+    private readonly cloudinary: CloudinaryService,
+    private readonly qdrantService: QdrantService
   ) { }
 
   //Create new flower service
@@ -48,7 +50,17 @@ export class FlowerService {
 
     await newFlower.save();
 
+    //get the flower just created to add to Qdrant DB
+    const flowerForQdrant = await this.FlowerModel.findById(newFlower._id);
+    if(!flowerForQdrant){
+      throw new NotFoundException('Không tìm thấy hoa vừa tạo để thêm vào Qdrant');
+    }
+
+    //Add flower to Qdrant DB
+    await this.qdrantService.embedAndStoreFlower(flowerForQdrant);
+
     return {
+      status: "success",
       data: newFlower
     };
   }
@@ -127,6 +139,7 @@ export class FlowerService {
     const total = await this.FlowerModel.countDocuments(finalQuery);
 
     return {
+      status: "success",
       data: flowers,
       total,
       page,
@@ -140,6 +153,7 @@ export class FlowerService {
     const occasions = await this.FlowerModel.distinct("occasion")
 
     return {
+      status: "success",
       data: occasions
     }
   }
@@ -149,6 +163,7 @@ export class FlowerService {
     const types = await this.FlowerModel.distinct("types")
 
     return {
+      status: "success",
       data: types
     }
   }
@@ -158,6 +173,7 @@ export class FlowerService {
     const forms = await this.FlowerModel.distinct("form")
 
     return {
+      status: "success",
       data: forms
     }
   }
@@ -174,6 +190,7 @@ export class FlowerService {
       throw new NotFoundException('Không tìm thấy hoa');
     }
     return {
+      status: "success",
       data: flower
     };
   }
@@ -228,6 +245,7 @@ export class FlowerService {
     await this.FlowerModel.findByIdAndUpdate(id, updateData, { new: true });
 
     return {
+      status: "success",
       message: "Cập nhật hoa thành công !"
     };
   }
@@ -299,6 +317,7 @@ export class FlowerService {
     await this.FlowerModel.findByIdAndDelete(id);
 
     return {
+      status: "success",
       message: "Xóa hoa thành công !"
     };
   }

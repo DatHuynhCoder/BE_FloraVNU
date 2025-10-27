@@ -5,11 +5,13 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { Flower, FlowerSchema } from './schemas/flower.schema';
 import { CloudinaryService } from '../../common/services/cloudinary/cloudinary.service';
 import { CloudinaryModule } from '../../common/services/cloudinary/cloudinary.module';
+import { QdrantModule } from '../../common/services/qdrant/qdrant.module';
 
 @Module({
   imports:[
     MongooseModule.forFeature([{name: Flower.name, schema: FlowerSchema}]),
-    CloudinaryModule
+    CloudinaryModule,
+    QdrantModule
   ],
   controllers: [FlowerController],
   providers: [FlowerService,CloudinaryService],

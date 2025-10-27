@@ -54,6 +54,7 @@ export class ChatbotService {
     const response = await this.geminiService.generateResponse(prompt);
 
     return {
+      status: "success",
       data: response
     }
   }
