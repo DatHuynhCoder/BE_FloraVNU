@@ -60,6 +60,17 @@ export class OrderService {
     }
   }
 
+  async updatePaymentMethod(id: string, uid: string, paymentMethod: string) {
+    const order = await this.orderModel.findOne({ _id: id, accountId: uid })
+    if (!order) throw new NotFoundException({ status: "error", message: "Order not found or you are not authorized to change the payment method of this order" })
+    const updatedOrder = await this.orderModel.findByIdAndUpdate(id, { paymentMethod: paymentMethod }, { new: true });
+    return {
+      status: "success",
+      message: "payment method updated successfully",
+      data: updatedOrder
+    }
+  }
+
   async update(id: string, updateOrderDto: UpdateOrderDto) {
     const orderFinding = await this.orderModel.findById(id) // return null if not found 
     if (!orderFinding) throw new NotFoundException()
