@@ -244,6 +244,13 @@ export class FlowerService {
     //Update flower in DB
     await this.FlowerModel.findByIdAndUpdate(id, updateData, { new: true });
 
+    //get the flower just updated to update to Qdrant DB using the same service as create
+    const flowerForQdrant = await this.FlowerModel.findById(id);
+    if(!flowerForQdrant){
+      throw new NotFoundException('Không tìm thấy hoa vừa cập nhật để thêm vào Qdrant');
+    }
+    await this.qdrantService.embedAndStoreFlower(flowerForQdrant);
+
     return {
       status: "success",
       message: "Cập nhật hoa thành công !"
