@@ -314,6 +314,9 @@ export class FlowerService {
       await this.cloudinary.deleteImage(flower.image.public_id)
     }
 
+    //delete flower vector in Qdrant DB
+    await this.qdrantService.deleteFLowerVector(id);
+
     await this.FlowerModel.findByIdAndDelete(id);
 
     return {
