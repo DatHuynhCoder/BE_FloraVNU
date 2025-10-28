@@ -50,8 +50,11 @@ export class OrderService {
   }
 
   async updateStatus(id: string, status: string) {
-    const order = await this.orderModel.findById(id)
-    if (!order) throw new NotFoundException()
+    const order = await this.orderModel.findOne({ _id: id })
+    if (!order) throw new NotFoundException({
+      message: "Not found any order with that id or you are not authorized to update this order",
+      statusCode: 404
+    })
     const updatedOrder = await this.orderModel.findByIdAndUpdate(id, { orderStatus: status }, { new: true });
     return {
       status: "success",
@@ -60,9 +63,23 @@ export class OrderService {
     }
   }
 
+  async cancelOrder(id: string, uid: string) {
+    const order = await this.orderModel.findOne({ _id: id, accountId: uid })
+    if (!order) throw new NotFoundException({
+      message: "Not found any order with that id or you are not authorized to cancel this order",
+      statusCode: 404
+    })
+    const updatedOrder = await this.orderModel.findByIdAndUpdate(id, { orderStatus: 'Cancelled' }, { new: true });
+    return {
+      status: "success",
+      message: "order cancelled successfully",
+      data: updatedOrder
+    }
+  }
+
   async updatePaymentMethod(id: string, uid: string, paymentMethod: string) {
     const order = await this.orderModel.findOne({ _id: id, accountId: uid })
-    if (!order) throw new NotFoundException({ status: "error", message: "Order not found or you are not authorized to change the payment method of this order" })
+    if (!order) throw new NotFoundException({ message: "Order not found or you are not authorized to change the payment method of this order", statusCode: 404 })
     const updatedOrder = await this.orderModel.findByIdAndUpdate(id, { paymentMethod: paymentMethod }, { new: true });
     return {
       status: "success",
