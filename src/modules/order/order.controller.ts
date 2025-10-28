@@ -52,6 +52,14 @@ export class OrderController {
     return this.orderService.updateStatus(id, updateOrderStatusDto.status);
   }
 
+  // cancel an order
+  @Patch(':id/cancel')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('admin', 'customer')
+  cancelOrder(@Param('id') id: string, @Request() req) {
+    return this.orderService.cancelOrder(id, req.user._id);
+  }
+
   // change payment method
   @Patch(':id/payment-method')
   @UseGuards(JwtAuthGuard, RolesGuard)
