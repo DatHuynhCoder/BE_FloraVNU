@@ -45,9 +45,12 @@ export class CreateOrderDto {
   recipientAddress: string;
 
   @IsNotEmpty()
+  isDelivery: boolean;
+
+  @IsOptional()
   deliveryDate: Date;
 
-  @IsNotEmpty()
+  @IsOptional()
   @IsString()
   deliveryTime: string;
 

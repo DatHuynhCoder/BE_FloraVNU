@@ -42,6 +42,9 @@ export class Order {
   recipientAddress: string;
 
   @Prop({ required: true })
+  isDelivery: boolean;
+
+  @Prop({ required: true })
   deliveryDate: Date;
 
   @Prop({ required: true })
