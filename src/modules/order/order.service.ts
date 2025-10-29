@@ -41,7 +41,12 @@ export class OrderService {
   }
 
   async findByAccountId(accountId: string) {
-    const orders = await this.orderModel.find({ accountId: accountId });
+    const orders = await this.orderModel
+      .find({ accountId: accountId })
+      .populate({
+        path: 'orderItems.flowerId',
+        select: 'name description price image.url stockQuantity'
+      }); // populate nếu muốn hiển thị thông tin hoa;
     return {
       status: "success",
       message: `all orders of user with id: ${accountId}`,
