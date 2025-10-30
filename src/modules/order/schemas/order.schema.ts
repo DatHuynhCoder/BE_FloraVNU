@@ -65,6 +65,9 @@ export class Order {
 
   @Prop({ required: true, enum: ["Bank", "Cash"], default: "Bank" })
   paymentMethod: string;
+
+  @Prop({ required: true, default: false })
+  paymentStatus: boolean;
 }
 
 export type OrderDocument = HydratedDocument<Order>;

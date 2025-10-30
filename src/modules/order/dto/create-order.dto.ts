@@ -5,6 +5,8 @@ import mongoose from "mongoose";
 class OrderItem {
   @IsNotEmpty()
   flowerId: mongoose.Types.ObjectId;
+  price: number;
+  discountPercent: number;
   quantity: number;
 }
 
@@ -16,9 +18,9 @@ export class CreateOrderDto {
   @IsArray()
   orderItems: OrderItem[];
 
-  @IsNotEmpty()
-  @IsNumber()
-  totalPrice: number;
+  // @IsNotEmpty()
+  // @IsNumber()
+  // totalPrice: number;
 
   @IsOptional()
   @IsString()

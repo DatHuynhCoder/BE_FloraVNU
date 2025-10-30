@@ -81,7 +81,7 @@ export class CartService {
       .findOne({ accountId: uid })
       .populate({
         path: 'cartItems.flowerId',
-        select: 'name description price image.url stockQuantity'
+        select: 'name description price discountPercent image.url stockQuantity'
       }); // populate nếu muốn hiển thị thông tin hoa
     if (!cart) throw new NotFoundException('Cart not found');
     return cart;
