@@ -48,8 +48,16 @@ export class OrderController {
   @Patch(':id/status')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('admin')
-  updateStatus(@Param('id') id: string, @Body() updateOrderStatusDto: UpdateOrderStatusDto) {
-    return this.orderService.updateStatus(id, updateOrderStatusDto.status);
+  updateOrderStatus(@Param('id') id: string, @Body() updateOrderStatusDto: UpdateOrderStatusDto) {
+    return this.orderService.updateOrderStatus(id, updateOrderStatusDto.status);
+  }
+
+  // update payment status
+  @Patch(':id/payment-status')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('admin')
+  updateOrderPaymentStatus(@Param('id') id: string, @Body() paymentStatus: boolean) {
+    return this.orderService.updateOrderPaymentStatus(id, paymentStatus);
   }
 
   // cancel an order
@@ -67,6 +75,9 @@ export class OrderController {
   updatePaymentMethod(@Param('id') id: string, @Request() req, @Body() updateOrderPaymentMethodDto: UpdateOrderPaymentMethodDto) {
     return this.orderService.updatePaymentMethod(id, req.user._id, updateOrderPaymentMethodDto.paymentMethod);
   }
+
+  // change payment status
+
 
   // update an order
   @Patch(':id')
