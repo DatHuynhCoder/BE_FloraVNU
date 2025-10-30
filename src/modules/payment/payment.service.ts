@@ -86,8 +86,10 @@ export class PaymentService {
     // TODO: Parse provider event and update payment
     console.log("Webhook called and receive: ", body)
     const orderId = body.data.description.split(" ")[1]
-    // now change orderStatus of order with id = orderId
-    this.orderService.updateStatus(orderId, "Processing")
+    // now change orderStatus of order with _id = orderId
+    this.orderService.updateOrderStatus(orderId, "Processing")
+    // change paymentStatus of order with _id = orderId to true (order is paid)
+    this.orderService.updateOrderPaymentStatus(orderId, true)
     return { received: true };
   }
 }

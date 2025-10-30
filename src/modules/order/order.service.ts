@@ -13,14 +13,20 @@ export class OrderService {
 
   // create new order
   async createOrder(uid: string, createOrderDto: CreateOrderDto) {
+    const orderItems = createOrderDto?.orderItems;
+    let totalPrice = orderItems.reduce((acc, item) => acc + item.quantity * item.price * (100 - item.discountPercent) / 100, 0);
+    console.log("totalPrice: ", totalPrice)
     const createdOrder = new this.orderModel({
       ...createOrderDto,
       accountId: uid,
-      orderStatus: 'Pending'
+      totalPrice,
+      orderStatus: 'Pending',
+      // paymentMethod: 'Bank'
     });
     await createdOrder.save();
     return {
       status: "success",
+      message: "order created successfully",
       data: createdOrder
     }
   }
@@ -33,24 +39,74 @@ export class OrderService {
     const order = await this.orderModel.findById(id);
     return {
       status: "success",
+      message: "...",
       data: order
     }
   }
 
   async findByAccountId(accountId: string) {
-    const orders = await this.orderModel.find({ accountId: accountId });
+    const orders = await this.orderModel
+      .find({ accountId: accountId })
+      .populate({
+        path: 'orderItems.flowerId',
+        select: 'name description price discountPercent image.url stockQuantity'
+      }); // populate nếu muốn hiển thị thông tin hoa;
     return {
       status: "success",
+      message: `all orders of user with id: ${accountId}`,
       data: orders
     }
   }
 
-  async updateStatus(id: string, status: string) {
-    const order = await this.orderModel.findById(id)
-    if (!order) throw new NotFoundException()
+  async updateOrderStatus(id: string, status: string) {
+    const order = await this.orderModel.findOne({ _id: id })
+    if (!order) throw new NotFoundException({
+      message: "Not found any order with that id or you are not authorized to update this order",
+      statusCode: 404
+    })
     const updatedOrder = await this.orderModel.findByIdAndUpdate(id, { orderStatus: status }, { new: true });
     return {
       status: "success",
+      message: "status updated successfully",
+      data: updatedOrder
+    }
+  }
+
+  async updateOrderPaymentStatus(id: string, paymentStatus: boolean) {
+    const order = await this.orderModel.findOne({ _id: id })
+    if (!order) throw new NotFoundException({
+      message: "Not found any order with that id or you are not authorized to update payment status of this order",
+      statusCode: 404
+    })
+    const updatedOrder = await this.orderModel.findByIdAndUpdate(id, { paymentStatus: paymentStatus }, { new: true });
+    return {
+      status: "success",
+      message: "payment status updated successfully",
+      data: updatedOrder
+    }
+  }
+
+  async cancelOrder(id: string, uid: string) {
+    const order = await this.orderModel.findOne({ _id: id, accountId: uid })
+    if (!order) throw new NotFoundException({
+      message: "Not found any order with that id or you are not authorized to cancel this order",
+      statusCode: 404
+    })
+    const updatedOrder = await this.orderModel.findByIdAndUpdate(id, { orderStatus: 'Cancelled' }, { new: true });
+    return {
+      status: "success",
+      message: "order cancelled successfully",
+      data: updatedOrder
+    }
+  }
+
+  async updatePaymentMethod(id: string, uid: string, paymentMethod: string) {
+    const order = await this.orderModel.findOne({ _id: id, accountId: uid })
+    if (!order) throw new NotFoundException({ message: "Order not found or you are not authorized to change the payment method of this order", statusCode: 404 })
+    const updatedOrder = await this.orderModel.findByIdAndUpdate(id, { paymentMethod: paymentMethod }, { new: true });
+    return {
+      status: "success",
+      message: "payment method updated successfully",
       data: updatedOrder
     }
   }
@@ -63,7 +119,8 @@ export class OrderService {
     })
     return {
       status: "success",
-      message: `This action updates a #${id} order`
+      message: "order updated successfully",
+      data: order
     };
   }
 
@@ -72,7 +129,8 @@ export class OrderService {
     await this.orderModel.findByIdAndDelete(id);
     return {
       status: "success",
-      message: 'Order deleted successfully'
+      message: 'Order deleted successfully',
+      data: null
     }
   }
 }

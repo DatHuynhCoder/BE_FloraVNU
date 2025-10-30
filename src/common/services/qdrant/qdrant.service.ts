@@ -107,6 +107,16 @@ export class QdrantService implements OnModuleInit {
     })
     console.log(`Vector hóa và lưu hoa: ${flower.name} thành công`)
   }
+
+  //Delete flower vector from Qdrant DB
+  async deleteFLowerVector(flowerId: string){
+    const qdrantId = await getQdrantId(flowerId);
+    await this.client.delete(this.collectionName, {
+      points: [qdrantId],
+      wait: true
+    });
+    console.log(`Xóa vector hoa với ID Qdrant: ${qdrantId} thành công`)
+  }
   
   //Find flowers using vector similarity
   async searchSimilarFlowers(query: string, limit = 3) {

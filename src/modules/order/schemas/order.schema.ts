@@ -42,6 +42,9 @@ export class Order {
   recipientAddress: string;
 
   @Prop({ required: true })
+  isDelivery: boolean;
+
+  @Prop({ required: true })
   deliveryDate: Date;
 
   @Prop({ required: true })
@@ -59,6 +62,12 @@ export class Order {
 
   @Prop({ required: true, enum: ["Pending", "Processing", "Delivered", "Cancelled"], default: "Pending" })
   orderStatus: string;
+
+  @Prop({ required: true, enum: ["Bank", "Cash"], default: "Bank" })
+  paymentMethod: string;
+
+  @Prop({ required: true, default: false })
+  paymentStatus: boolean;
 }
 
 export type OrderDocument = HydratedDocument<Order>;
