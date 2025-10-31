@@ -36,9 +36,7 @@ export class ChatbotService {
         Số lượng bán được: ${flower.quantitySold}
       `
     })
-
-    console.log(contexts)
-
+    
     //4. create promt
     const prompt = `
       Bạn là một trợ lý ảo tư vấn chuyên nghiệp của cửa hàng hoa FLoraVNU.
