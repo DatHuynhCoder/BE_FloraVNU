@@ -30,6 +30,15 @@ export class Account {
 
   @Prop({type: ImageSchema})
   avatar?: Image;
+
+   @Prop()
+  resetPasswordOTP?: string;
+
+  @Prop()
+  resetPasswordExpires?: Date;
+
+  @Prop({ default: 0 })
+  resetPasswordAttempts?: number;
 }
 
 export type AccountDocument = HydratedDocument<Account>;
