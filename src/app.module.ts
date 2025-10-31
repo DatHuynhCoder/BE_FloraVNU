@@ -11,6 +11,8 @@ import { OrderModule } from './modules/order/order.module';
 import { ChatbotModule } from './modules/chatbot/chatbot.module';
 import { QdrantModule } from './common/services/qdrant/qdrant.module';
 import { PaymentModule } from './modules/payment/payment.module';
+import { MailerModule } from '@nestjs-modules/mailer';
+import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
 import { CartModule } from './modules/cart/cart.module';
 
 @Module({
@@ -22,6 +24,32 @@ import { CartModule } from './modules/cart/cart.module';
       inject: [ConfigService],
       useFactory: async (configService: ConfigService) => ({
         uri: configService.get<string>('MONGO_URI'),
+      }),
+    }),
+    MailerModule.forRootAsync({
+      inject: [ConfigService],
+      useFactory: async (configService: ConfigService) => ({
+        transport: {
+        host: 'smtp.gmail.com',
+        port: 465,
+        ignoreTLS: true,
+        secure: true,
+        auth: {
+          user: process.env.MAIL_ADMIN,
+          pass: process.env.MAIL_PASSWORD,
+        },
+      },
+      defaults: {
+        from: '"No Reply" <no-reply@localhost>',
+      },
+      //preview: true,
+        template: {
+          dir: process.cwd() + '/src/mail/',
+          adapter: new HandlebarsAdapter(),
+          options: {
+            strict: true,
+          },
+        },
       }),
     }),
     AccountModule,
