@@ -8,10 +8,11 @@ import { OrderService } from './order.service';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { JwtAuthGuard } from '../auth/passport/jwt-auth.guard';
 import { Controller, Get, Post, Body, Patch, Param, Delete, Request, UseGuards, UseInterceptors, UploadedFile, ParseIntPipe } from '@nestjs/common';
-import { Roles } from 'src/decorators/roles.decorator';
-import { RolesGuard } from 'src/guards/roles.guard';
+import { Roles } from '../../decorators/roles.decorator';
+import { RolesGuard } from '../../guards/roles.guard';
 import { UpdateOrderDto } from './dto/update-order.dto';
 import { UpdateOrderStatusDto } from './dto/update-order-status.dto';
+import { UpdateOrderPaymentMethodDto } from './dto/update-payment-method.dto';
 
 @Controller('order')
 export class OrderController {
@@ -47,9 +48,36 @@ export class OrderController {
   @Patch(':id/status')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('admin')
-  updateStatus(@Param('id') id: string, @Body() updateOrderStatusDto: UpdateOrderStatusDto) {
-    return this.orderService.updateStatus(id, updateOrderStatusDto.status);
+  updateOrderStatus(@Param('id') id: string, @Body() updateOrderStatusDto: UpdateOrderStatusDto) {
+    return this.orderService.updateOrderStatus(id, updateOrderStatusDto.status);
   }
+
+  // update payment status
+  @Patch(':id/payment-status')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('admin')
+  updateOrderPaymentStatus(@Param('id') id: string, @Body() paymentStatus: boolean) {
+    return this.orderService.updateOrderPaymentStatus(id, paymentStatus);
+  }
+
+  // cancel an order
+  @Patch(':id/cancel')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('admin', 'customer')
+  cancelOrder(@Param('id') id: string, @Request() req) {
+    return this.orderService.cancelOrder(id, req.user._id);
+  }
+
+  // change payment method
+  @Patch(':id/payment-method')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('admin', 'customer')
+  updatePaymentMethod(@Param('id') id: string, @Request() req, @Body() updateOrderPaymentMethodDto: UpdateOrderPaymentMethodDto) {
+    return this.orderService.updatePaymentMethod(id, req.user._id, updateOrderPaymentMethodDto.paymentMethod);
+  }
+
+  // change payment status
+
 
   // update an order
   @Patch(':id')

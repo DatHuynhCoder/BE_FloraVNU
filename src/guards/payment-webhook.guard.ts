@@ -5,9 +5,9 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { PayosWebhookBodyPayload } from '../dto/payos-webhook-body.payload';
+import { PayosWebhookBodyPayload } from '../modules/payment/dto/payos-webhook-body.payload';
 import { createHmac } from 'node:crypto';
-import { convertObjToQueryStr, sortObjDataByKey } from '../payos-utils';
+import { convertObjToQueryStr, sortObjDataByKey } from '../utils/payos-utils';
 
 @Injectable()
 export class PaymentWebhookGuard implements CanActivate {

@@ -6,12 +6,14 @@ import { HttpService } from '@nestjs/axios';
 import { firstValueFrom } from 'rxjs';
 import { PayosRequestPaymentPayload } from './dto/payos-request-payment.payload';
 import { generateSignature } from './payos-utils';
+import { OrderService } from '../order/order.service';
 
 @Injectable()
 export class PaymentService {
   constructor(
     private readonly configService: ConfigService,
-    private readonly httpService: HttpService
+    private readonly httpService: HttpService,
+    private readonly orderService: OrderService
   ) { }
 
   // async createPaymentLink(uid: string, clientId: string, apiKey: string, checksumKey: string) {
@@ -48,7 +50,7 @@ export class PaymentService {
   //     data: paymentLink
   //   };
   // }
-  async createPayment(body: CreatePaymentDto): Promise<any> {
+  async createPayment(uid: string, body: CreatePaymentDto): Promise<any> {
     const url = `https://api-merchant.payos.vn/v2/payment-requests`;
     const config = {
       headers: {
@@ -57,9 +59,12 @@ export class PaymentService {
       },
     };
     const dataForSignature = {
+      //orderCode: Number(body.orderId),
       orderCode: Number(body.orderId),
       amount: body.amount,
       description: body.description,
+      // description: "" + uid + " - " + body.orderId + " - " + body.description,
+      // description: body.description,
       cancelUrl: 'https://example.com/cancel',
       returnUrl: 'https://example.com/return',
     };
@@ -77,8 +82,14 @@ export class PaymentService {
     return response.data;
   }
 
-  handleWebhook() {
+  handleWebhook(body: any) {
     // TODO: Parse provider event and update payment
+    console.log("Webhook called and receive: ", body)
+    const orderId = body.data.description.split(" ")[1]
+    // now change orderStatus of order with _id = orderId
+    this.orderService.updateOrderStatus(orderId, "Processing")
+    // change paymentStatus of order with _id = orderId to true (order is paid)
+    this.orderService.updateOrderPaymentStatus(orderId, true)
     return { received: true };
   }
 }

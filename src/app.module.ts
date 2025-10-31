@@ -8,9 +8,12 @@ import { AuthModule } from './modules/auth/auth.module';
 import { FlowerModule } from './modules/flower/flower.module';
 import { CommentModule } from './modules/comment/comment.module';
 import { OrderModule } from './modules/order/order.module';
+import { ChatbotModule } from './modules/chatbot/chatbot.module';
+import { QdrantModule } from './common/services/qdrant/qdrant.module';
 import { PaymentModule } from './modules/payment/payment.module';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
+import { CartModule } from './modules/cart/cart.module';
 
 @Module({
   imports: [
@@ -54,7 +57,10 @@ import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handleba
     FlowerModule,
     CommentModule,
     OrderModule,
-    PaymentModule
+    ChatbotModule,
+    QdrantModule,
+    PaymentModule,
+    CartModule
   ],
   controllers: [AppController],
   providers: [AppService],
