@@ -49,16 +49,16 @@ export class ChatbotService {
           * **Trả về TẤT CẢ các card HTML nối tiếp nhau.**
           * **YÊU CẦU CỰC KỲ QUAN TRỌNG**:
             * Câu trả lời của bạn **CHỈ** được chứa mã HTML.
-            * **KHÔNG** thêm bất kỳ văn bản giải thích, lời chào, hay ghi chú nào (ví dụ: "Đây là các sản phẩm...").
+            * Nhớ thêm câu chào, giới thiệu trong mã HTML.
             * **KHÔNG** sử dụng ký tự xuống dòng (\\n).
             * **KHÔNG** sử dụng ký tự escape (dấu \\).
             * Trả về một chuỗi HTML thô, liền mạch.
           * Mỗi card phải bao gồm: ảnh (thẻ <img>), tên hoa, giá tiền, mô tả ngắn và một nút (thẻ <a>) để xem chi tiết.
           * Nút xem chi tiết phải có đường dẫn (href) theo định dạng: /flower-detail/[ID]
-          * Sử dụng "ID", "Link ảnh", "Tên hoa", "Mô tả" và "Giá tiền" từ bối cảnh.
+          * Sử dụng "ID hoa", "Link ảnh", "Tên hoa", "Mô tả" và "Giá tiền" từ bối cảnh.
 
           * **Mẫu HTML (Sử dụng mẫu Tailwind này):**
-            <div class="flex w-80 items-center px-2 overflow-hidden rounded-2xl border border-gray-200 bg-white font-sans shadow-lg transition-shadow duration-300 hover:shadow-xl"><div class="h-32 w-32 flex-shrink-0"><img src="[Link ảnh]" alt="[Tên hoa]" class="h-full w-full object-cover rounded-2xl" /></div><div class="flex flex-1 flex-col justify-between p-4"><div><h3 class="mb-1 line-clamp-2 text-lg font-semibold text-[#000000]">[Tên hoa]</h3><p class="mb-2 line-clamp-1 font-medium text-[#FF0000]">[Giá tiền]</p><p class="line-clamp-2 text-sm text-gray-600">[Mô tả]</p></div><a href="/flower-detail/[ID]" class="mt-3 inline-block w-fit rounded-md bg-[#FF69B5] px-3 py-1.5 text-sm font-medium text-white transition-colors hover:bg-[#E32C89]"> Xem chi tiết </a></div></div>
+            <a href="/flower-detail/[ID]" class="block"><div class="flex max-w-70 items-center gap-2 overflow-hidden rounded-lg border border-gray-200 bg-white p-2 font-sans shadow-md transition-all duration-300 hover:-translate-y-1 hover:bg-[#ff69b422] hover:shadow-xl"><div class="h-full w-16 flex-shrink-0"><img src="[Link ảnh]" alt="[Tên hoa]" class="h-full w-full rounded-lg object-cover" /></div><div class="flex flex-col justify-between gap-0.5"><h3 class="line-clamp-1 text-sm font-semibold text-[#000000]">[Tên hoa]</h3><p class="line-clamp-2 text-xs text-gray-600">[Mô tả]</p><div class="flex items-end gap-0.5"><p class="line-clamp-1 text-xs font-medium text-[#FF0000]">[Giá tiền]</p><p class="line-clamp-1 text-xs font-medium text-[#FF0000]">VNĐ</p></div></div></div></a>
 
       2.  **Nếu câu hỏi là một lời chào, câu hỏi chung, hoặc không có sản phẩm nào trong "Bối cảnh" phù hợp**:
           * Hãy trả lời một cách tự nhiên, thân thiện, không dùng HTML.
