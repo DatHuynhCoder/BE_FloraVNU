@@ -7,6 +7,12 @@ export class OrderItem {
   flowerId: mongoose.Types.ObjectId;
 
   @Prop({ required: true })
+  price: number;
+
+  @Prop({ required: true })
+  discountPercent: number;
+
+  @Prop({ required: true })
   quantity: number;
   // @Prop({ required: true })
   // price: number;

@@ -1,10 +1,12 @@
 import { Transform } from "class-transformer";
-import { IsArray, IsNotEmpty, IsNumber, IsOptional, IsString, Max, Min } from "class-validator";
+import { IsArray, IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString, Max, Min } from "class-validator";
 import mongoose from "mongoose";
 
 class OrderItem {
   @IsNotEmpty()
   flowerId: mongoose.Types.ObjectId;
+  price: number;
+  discountPercent: number;
   quantity: number;
 }
 
@@ -16,9 +18,9 @@ export class CreateOrderDto {
   @IsArray()
   orderItems: OrderItem[];
 
-  @IsNotEmpty()
-  @IsNumber()
-  totalPrice: number;
+  // @IsNotEmpty()
+  // @IsNumber()
+  // totalPrice: number;
 
   @IsOptional()
   @IsString()
@@ -45,9 +47,12 @@ export class CreateOrderDto {
   recipientAddress: string;
 
   @IsNotEmpty()
+  isDelivery: boolean;
+
+  @IsOptional()
   deliveryDate: Date;
 
-  @IsNotEmpty()
+  @IsOptional()
   @IsString()
   deliveryTime: string;
 
@@ -62,4 +67,8 @@ export class CreateOrderDto {
   // may be removed because createdAt will be used instead
   // @IsNotEmpty()
   // orderDate: Date;
+  @IsOptional()
+  @IsString()
+  @IsEnum(["Bank", "Cash"], { message: 'paymentMethod must be either Bank or Cash' })
+  paymentMethod: string;
 }

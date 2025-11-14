@@ -32,6 +32,9 @@ export class UpdateOrderDto {
   ////////////////////////////////////////
 
   @IsOptional()
+  isDelivery: boolean;
+
+  @IsOptional()
   deliveryDate?: Date;
 
   @IsOptional()
