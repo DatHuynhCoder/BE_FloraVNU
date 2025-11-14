@@ -12,6 +12,7 @@ import { MailerService } from '@nestjs-modules/mailer';
 import { randomInt } from 'crypto';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
+import { GetAccountsDto } from './dto/get-accounts.dto';
 
 @Injectable()
 export class AccountService {
@@ -86,6 +87,47 @@ export class AccountService {
     return {
       data: account
     }
+  }
+
+  //Get accounts with pagination and filtering
+  async getAccounts(query: GetAccountsDto) {
+    const { page = 1, limit = 10, search, role } = query;
+    const skip = (page - 1) * limit;
+
+    const filter: any = {};
+
+    // Search by username, email or phone
+    if (search) {
+      filter.$or = [
+        { username: { $regex: search, $options: 'i' } },
+        { email: { $regex: search, $options: 'i' } },
+        { phone: { $regex: search, $options: 'i' } },
+      ];
+    }
+
+    if (role) {
+      filter.role = role;
+    }
+
+    const [items, total] = await Promise.all([
+      this.AccountModel.find(filter)
+        .select('-password')
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit)
+        .lean(),
+      this.AccountModel.countDocuments(filter)
+    ]);
+
+    return {
+      data: items,
+      meta: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit),
+      }
+    };
   }
 
   //Update account profile 
