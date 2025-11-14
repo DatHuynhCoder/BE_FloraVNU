@@ -14,6 +14,7 @@ import { PaymentModule } from './modules/payment/payment.module';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
 import { CartModule } from './modules/cart/cart.module';
+import * as path from 'path';
 
 @Module({
   imports: [
@@ -44,7 +45,7 @@ import { CartModule } from './modules/cart/cart.module';
       },
       //preview: true,
         template: {
-          dir: process.cwd() + '/src/mail/',
+          dir: path.join(__dirname, 'mail'),
           adapter: new HandlebarsAdapter(),
           options: {
             strict: true,
