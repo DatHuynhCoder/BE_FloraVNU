@@ -49,7 +49,7 @@ export class OrderService {
       .find({ accountId: accountId })
       .populate({
         path: 'orderItems.flowerId',
-        select: 'name description price discountPercent image.url stockQuantity'
+        select: 'name description price discountPercent image.url stockQuantity rating'
       }); // populate nếu muốn hiển thị thông tin hoa;
     return {
       status: "success",
