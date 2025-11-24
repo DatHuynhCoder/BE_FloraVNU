@@ -18,4 +18,10 @@ export class ChatbotController {
     return this.chatbotService.syncDataVectorDB()
   }
 
+  //delete chatbot history
+  @Delete('history/:id')
+  deleteChatbotHistory(@Param('id') sesstionId: string){
+    return this.chatbotService.deleteChatbotHistory(sesstionId)
+  }
+
 }
