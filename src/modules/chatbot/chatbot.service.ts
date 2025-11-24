@@ -4,24 +4,46 @@ import { QdrantService } from '../../common/services/qdrant/qdrant.service';
 import { FlowerService } from '../flower/flower.service';
 import { GeminiService } from '../../common/services/gemini/gemini.service';
 import { trimHTMLTags } from '../../utils/trimHTMLTags';
+import { InjectModel } from '@nestjs/mongoose';
+import { ChatbotHistory } from './schemas/chatbot-history.schema';
+import { Model } from 'mongoose';
 
 @Injectable()
 export class ChatbotService {
   constructor(
+    @InjectModel(ChatbotHistory.name) private ChatbotHistoryModel: Model<ChatbotHistory>,
     private readonly qdrantService: QdrantService,
     private readonly flowerService: FlowerService,
     private readonly geminiService: GeminiService
   ) { }
 
   async getResponse(queryChatDto: QueryChatbotDto) {
-    const { query } = queryChatDto;
-    //1. search similar flowers ids in Qdrant based on query
+    const { query, sessionId } = queryChatDto;
+    //1a. find if there is an existing session (meaning that we continue the same chat)
+    const existingSession = await this.ChatbotHistoryModel.findOne({
+      sessionId: sessionId
+    })
+
+    //1bif no existing session, create a new one
+    let summary: string;
+    if (!existingSession) {
+      const newSession = new this.ChatbotHistoryModel({
+        sessionId: sessionId,
+        summary: 'Chưa có'
+      })
+      summary = 'Chưa có';
+      await newSession.save();
+    } else {
+      summary = existingSession.summary;
+    }
+
+    //2. search similar flowers ids in Qdrant based on query
     const similarFlowerIds = await this.qdrantService.searchSimilarFlowers(query);
 
-    //2. get full flowers info from mongoDB
+    //3. get full flowers info from mongoDB
     const similarFlowers = await this.flowerService.findByIds(similarFlowerIds);
 
-    //3. Get flower context
+    //4. Get flower context
     const contexts = similarFlowers.map(flower => {
       return `
         ID hoa: ${flower._id},
@@ -37,13 +59,14 @@ export class ChatbotService {
       `
     })
     
-    //4. create promt
+    //5. create promt
     const prompt = `
       Bạn là một trợ lý ảo tư vấn chuyên nghiệp của cửa hàng hoa FLoraVNU.
       Nhiệm vụ của bạn là trả lời câu hỏi của khách hàng.
 
       --- HƯỚNG DẪN TRẢ LỜI ---
       1.  **Nếu câu hỏi của khách hàng có thể được trả lời bằng các sản phẩm hoa trong "Bối cảnh"**:
+          * Trả lời cần xem xét đến "Tóm tắt đoạn hội thoại trước đó" nếu có.
           * Hãy xem xét TẤT CẢ các sản phẩm trong bối cảnh, ở đây có ${contexts.length} hoa.
           * Với MỖI sản phẩm phù hợp, hãy tạo một (1) card HTML theo mẫu.
           * **Trả về TẤT CẢ các card HTML nối tiếp nhau.**
@@ -58,10 +81,14 @@ export class ChatbotService {
           * Sử dụng "ID hoa", "Link ảnh", "Tên hoa", "Mô tả" và "Giá tiền" từ bối cảnh.
 
           * **Mẫu HTML (Sử dụng mẫu Tailwind này):**
-            <a href="/flower-detail/[ID]" class="block"><div class="flex max-w-70 items-center gap-2 overflow-hidden rounded-lg border border-gray-200 bg-white p-2 font-sans shadow-md transition-all duration-300 hover:-translate-y-1 hover:bg-[#ff69b422] hover:shadow-xl"><div class="h-full w-16 flex-shrink-0"><img src="[Link ảnh]" alt="[Tên hoa]" class="h-full w-full rounded-lg object-cover" /></div><div class="flex flex-col justify-between gap-0.5"><h3 class="line-clamp-1 text-sm font-semibold text-[#000000]">[Tên hoa]</h3><p class="line-clamp-2 text-xs text-gray-600">[Mô tả]</p><div class="flex items-end gap-0.5"><p class="line-clamp-1 text-xs font-medium text-[#FF0000]">[Giá tiền]</p><p class="line-clamp-1 text-xs font-medium text-[#FF0000]">VNĐ</p></div></div></div></a>
+            <a href="/flower-detail/[ID]" class="block mt-2"><div class="flex max-w-70 items-center gap-2 overflow-hidden rounded-lg border border-gray-200 bg-white p-2 font-sans shadow-md transition-all duration-300 hover:-translate-y-1 hover:bg-[#ff69b422] hover:shadow-xl"><div class="h-full w-16 flex-shrink-0"><img src="[Link ảnh]" alt="[Tên hoa]" class="h-full w-full rounded-lg object-cover" /></div><div class="flex flex-col justify-between gap-0.5"><h3 class="line-clamp-1 text-sm font-semibold text-[#000000]">[Tên hoa]</h3><p class="line-clamp-2 text-xs text-gray-600">[Mô tả]</p><div class="flex items-end gap-0.5"><p class="line-clamp-1 text-xs font-medium text-[#FF0000]">[Giá tiền]</p><p class="line-clamp-1 text-xs font-medium text-[#FF0000]">VNĐ</p></div></div></div></a>
 
       2.  **Nếu câu hỏi là một lời chào, câu hỏi chung, hoặc không có sản phẩm nào trong "Bối cảnh" phù hợp**:
           * Hãy trả lời một cách tự nhiên, thân thiện, không dùng HTML.
+
+      ---Tóm tắt đoạn hội thoại trước đó---
+      ${summary}
+      ---Hết tóm tắt---
 
       --- Bối cảnh thông tin sản phẩm ---
       ${contexts}
@@ -72,8 +99,23 @@ export class ChatbotService {
       Câu trả lời của bạn:
     `;
 
-    //5. get response from Gemini API
+    //6. get response from Gemini API
     const response = await this.geminiService.generateResponse(prompt);
+    const cleanResponse = trimHTMLTags(response)
+
+    //7. Update summary based on query and response
+    const newSummaryPrompt = `
+      Tóm tắt ngắn gọn đoạn hội thoại giữa trợ lý ảo của cửa hàng hoa FLoraVNU và khách hàng dựa trên câu hỏi và câu trả lời gần nhất dưới đây:
+      Đoạn tóm tắt hiện tại: "${summary}"
+      Câu hỏi: "${query}"
+      Câu trả lời: "${cleanResponse}"
+      Yêu cầu: Tóm tắt ngắn gọn các thông tin quan trọng có thể hỏi ở những lần chat tiếp theo không quá 30 từ, tập trung vào ý chính của cuộc trò chuyện.
+    `;
+    const newSummary = await this.geminiService.generateResponse(newSummaryPrompt);
+    await this.ChatbotHistoryModel.updateOne(
+      { sessionId: sessionId },
+      { summary: newSummary }
+    )
 
     return {
       status: "success",
@@ -93,6 +135,15 @@ export class ChatbotService {
     return {
       message: 'Đồng bộ dữ liệu thành công',
       count: flowers.length
+    }
+  }
+
+  //Delete chatbot history by sessionId
+  async deleteChatbotHistory(sessionId: string){
+    await this.ChatbotHistoryModel.deleteOne({sessionId: sessionId});
+    return {
+      status: 'success',
+      message: `Xóa lịch sử chatbot với sessionId: ${sessionId} thành công`
     }
   }
 
