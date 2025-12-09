@@ -18,13 +18,13 @@ export class ChatbotService {
   ) { }
 
   async getResponse(queryChatDto: QueryChatbotDto) {
-    const { query, sessionId } = queryChatDto;
+    let { query, sessionId } = queryChatDto;
     //1a. find if there is an existing session (meaning that we continue the same chat)
     const existingSession = await this.ChatbotHistoryModel.findOne({
       sessionId: sessionId
     })
 
-    //1bif no existing session, create a new one
+    //1b. if no existing session, create a new one
     let summary: string;
     if (!existingSession) {
       const newSession = new this.ChatbotHistoryModel({
@@ -35,6 +35,13 @@ export class ChatbotService {
       await newSession.save();
     } else {
       summary = existingSession.summary;
+      //1c. create suitable query for qdrant based on summary chat
+      const queryPromt = `Bạn là một trợ lý ảo tư vấn chuyên nghiệp của cửa hàng hoa FLoraVNU.
+      Dựa trên đoạn tóm tắt đoạn hội thoại trước đó dưới đây, tạo một câu truy vấn tìm kiếm các sản phẩm hoa phù hợp nhất để trả lời câu hỏi của khách hàng.
+      Đoạn tóm tắt: "${summary}"
+      Câu hỏi của khách hàng: "${query}"
+      Câu truy vấn tìm kiếm phù hợp nhất:`;
+      query = await this.geminiService.generateResponse(queryPromt);
     }
 
     //2. search similar flowers ids in Qdrant based on query
