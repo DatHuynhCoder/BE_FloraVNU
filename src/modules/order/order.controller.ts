@@ -13,6 +13,8 @@ import { RolesGuard } from '../../guards/roles.guard';
 import { UpdateOrderDto } from './dto/update-order.dto';
 import { UpdateOrderStatusDto } from './dto/update-order-status.dto';
 import { UpdateOrderPaymentMethodDto } from './dto/update-payment-method.dto';
+import { FilterOrderDto } from './dto/filter-order.dto';
+import { Query } from '@nestjs/common';
 
 @Controller('order')
 export class OrderController {
@@ -27,13 +29,24 @@ export class OrderController {
     return this.orderService.createOrder(uid, createOrderDto);
   }
 
-  // get all orders
+  // get all orders (admin)
   @Get()
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('admin')
-  findAll() {
-    return this.orderService.findAll();
+  findAll(@Query() query: FilterOrderDto) {
+    return this.orderService.findAll(query);
   }
+
+  // get order stats (admin)
+  @Get('stats/overview')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('admin')
+  getStats() {
+    return this.orderService.getStats();
+  }
+
+  // get order by id
+
 
   // get orders by account id
 
@@ -42,6 +55,13 @@ export class OrderController {
   @Roles('admin', 'customer')
   findByAccountId(@Request() req) {
     return this.orderService.findByAccountId(req.user._id);
+  }
+
+  @Get(':id')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('admin', 'customer')
+  findOne(@Param('id') id: string) {
+    return this.orderService.findOne(id);
   }
 
   // update order status
