@@ -65,8 +65,8 @@ export class PaymentService {
       description: body.description,
       // description: "" + uid + " - " + body.orderId + " - " + body.description,
       // description: body.description,
-      cancelUrl: 'https://example.com/cancel',
-      returnUrl: 'https://example.com/return',
+      cancelUrl: 'http://localhost:5000/orders-history',
+      returnUrl: 'http://localhost:5000/orders-history',
     };
     const signature = generateSignature(
       dataForSignature,
@@ -87,7 +87,7 @@ export class PaymentService {
     console.log("Webhook called and receive: ", body)
     const orderId = body.data.description.split(" ")[1]
     // now change orderStatus of order with _id = orderId
-    this.orderService.updateOrderStatus(orderId, "Processing")
+    // this.orderService.updateOrderStatus(orderId, "Processing")
     // change paymentStatus of order with _id = orderId to true (order is paid)
     this.orderService.updateOrderPaymentStatus(orderId, true)
     return { received: true };

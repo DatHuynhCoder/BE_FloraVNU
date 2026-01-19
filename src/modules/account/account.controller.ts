@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, UseInterceptors, UploadedFile, Req, ForbiddenException } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, UseInterceptors, UploadedFile, Req, ForbiddenException, Query } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { AccountService } from './account.service';
 import { CreateAccountDto } from './dto/create-account.dto';
@@ -9,6 +9,7 @@ import { JwtAuthGuard } from '../auth/passport/jwt-auth.guard';
 import { MailerService } from '@nestjs-modules/mailer';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
+import { GetAccountsDto } from './dto/get-accounts.dto';
 
 @Controller('account')
 export class AccountController {
@@ -34,6 +35,20 @@ export class AccountController {
     return this.accountService.findOneByName(username)
   }
   
+  //Admin get all accounts 
+  @UseGuards(JwtAuthGuard)
+  @Get('admin/list')
+  getAccounts(
+    @Query() query: GetAccountsDto,
+    @Req() req?: Request & { user?: { role?: string } },
+  ) {
+    const role = req?.user?.role;
+    if (role !== 'admin') {
+      throw new ForbiddenException('Only admins can access this resource');
+    }
+    return this.accountService.getAccounts(query);
+  }
+
   //Find account by Id
   @Get(':id')
   findOneById(@Param('id') id: string) {
