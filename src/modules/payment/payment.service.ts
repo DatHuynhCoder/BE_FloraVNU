@@ -16,40 +16,6 @@ export class PaymentService {
     private readonly orderService: OrderService
   ) { }
 
-  // async createPaymentLink(uid: string, clientId: string, apiKey: string, checksumKey: string) {
-  //   // check var
-  //   if (clientId === "empty" || apiKey === "empty" || checksumKey === "empty") {
-  //     throw new Error("PayOS configuration is missing");
-  //   }
-  //   // Logic to create a payment link
-
-  //   const payos = new PayOS({
-  //     clientId,
-  //     apiKey,
-  //     checksumKey
-  //   })
-  //   const YOUR_DOMAIN = 'http://localhost:5000';
-  //   const orderInfo: CreatePaymentLinkRequest = {
-  //     orderCode: 123,
-  //     amount: 10000,
-  //     description: "Thanh toan don hang",
-  //     items: [
-  //       {
-  //         name: "name",
-  //         quantity: 1,
-  //         price: 10000,
-  //       },
-  //     ],
-  //     returnUrl: `${YOUR_DOMAIN}/success?userid=${uid}`,
-  //     cancelUrl: `${YOUR_DOMAIN}/cancel`,
-  //   };
-  //   const paymentLink = await payos.create(orderInfo);
-
-  //   return {
-  //     message: 'Creating payment link with PayOS',
-  //     data: paymentLink
-  //   };
-  // }
   async createPayment(uid: string, body: CreatePaymentDto): Promise<any> {
     const url = `https://api-merchant.payos.vn/v2/payment-requests`;
     const config = {
@@ -59,14 +25,11 @@ export class PaymentService {
       },
     };
     const dataForSignature = {
-      //orderCode: Number(body.orderId),
       orderCode: Number(body.orderId),
       amount: body.amount,
       description: body.description,
-      // description: "" + uid + " - " + body.orderId + " - " + body.description,
-      // description: body.description,
-      cancelUrl: 'http://localhost:5000/orders-history',
-      returnUrl: 'http://localhost:5000/orders-history',
+      cancelUrl: 'https://floravnu.com/orders-history',
+      returnUrl: 'https://floravnu.com/orders-history',
     };
     const signature = generateSignature(
       dataForSignature,
@@ -86,10 +49,20 @@ export class PaymentService {
     // TODO: Parse provider event and update payment
     console.log("Webhook called and receive: ", body)
     const orderId = body.data.description.split(" ")[1]
-    // now change orderStatus of order with _id = orderId
-    // this.orderService.updateOrderStatus(orderId, "Processing")
-    // change paymentStatus of order with _id = orderId to true (order is paid)
     this.orderService.updateOrderPaymentStatus(orderId, true)
     return { received: true };
+  }
+
+  async getHistory(orderCode: number) {
+    const config = {
+      headers: {
+        'x-client-id': this.configService.getOrThrow<string>('PAYOS_CLIENT_ID'),
+        'x-api-key': this.configService.getOrThrow<string>('PAYOS_API_KEY'),
+      },
+    };
+    const response = await firstValueFrom(
+      this.httpService.get(`https://api-merchant.payos.vn/v2/payment-requests/${orderCode}/invoices`, config),
+    );
+    return response.data;
   }
 }
