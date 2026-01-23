@@ -7,6 +7,7 @@ import { trimHTMLTags } from '../../utils/trimHTMLTags';
 import { InjectModel } from '@nestjs/mongoose';
 import { ChatbotHistory } from './schemas/chatbot-history.schema';
 import { Model } from 'mongoose';
+import { SaveChatbotDto } from './dto/save-chatbot.dto';
 
 @Injectable()
 export class ChatbotService {
@@ -110,7 +111,22 @@ export class ChatbotService {
     const response = await this.geminiService.generateResponse(prompt);
     const cleanResponse = trimHTMLTags(response)
 
-    //7. Update summary based on query and response
+    return {
+      status: "success",
+      data: response,
+      saveData: {
+        sessionId: sessionId,
+        summary: summary,
+        query: query,
+        cleanResponse: cleanResponse
+      }
+    }
+  }
+
+  async saveChatHistory(saveChatbotDto: SaveChatbotDto) {
+    const { sessionId, summary, query, cleanResponse } = saveChatbotDto;
+
+    //Build prompt for summary
     const newSummaryPrompt = `
       Tóm tắt ngắn gọn đoạn hội thoại giữa trợ lý ảo của cửa hàng hoa FLoraVNU và khách hàng dựa trên câu hỏi và câu trả lời gần nhất dưới đây:
       Đoạn tóm tắt hiện tại: "${summary}"
@@ -119,6 +135,7 @@ export class ChatbotService {
       Yêu cầu: Tóm tắt ngắn gọn các thông tin quan trọng có thể hỏi ở những lần chat tiếp theo không quá 30 từ, tập trung vào ý chính của cuộc trò chuyện.
     `;
     const newSummary = await this.geminiService.generateResponse(newSummaryPrompt);
+
     await this.ChatbotHistoryModel.updateOne(
       { sessionId: sessionId },
       { summary: newSummary }
@@ -126,7 +143,6 @@ export class ChatbotService {
 
     return {
       status: "success",
-      data: response
     }
   }
 
