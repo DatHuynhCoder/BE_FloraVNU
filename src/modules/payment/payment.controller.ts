@@ -6,7 +6,8 @@ import {
   Post,
   Delete,
   UseGuards,
-  Request
+  Request,
+  ParseIntPipe
 } from '@nestjs/common';
 import { PaymentService } from './payment.service';
 import type { CreatePaymentDto } from './types/dto';
@@ -32,5 +33,12 @@ export class PaymentController {
   @UseGuards(PaymentWebhookGuard)
   handleWebhook(@Body() body: any) {
     return this.paymentService.handleWebhook(body);
+  }
+
+  @Get('history/:orderCode')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('admin', 'customer')
+  getHistory(@Param('orderCode', ParseIntPipe) orderCode: number) {
+    return this.paymentService.getHistory(orderCode);
   }
 }
